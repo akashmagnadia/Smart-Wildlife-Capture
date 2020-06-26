@@ -19,6 +19,7 @@ package com.armcomptech.smartanimaldetector;
 import android.Manifest;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
@@ -595,11 +596,8 @@ public abstract class CameraActivity extends AppCompatActivity
   public boolean onCreateOptionsMenu(Menu menu) {
     MenuInflater inflater = getMenuInflater();
     inflater.inflate(R.menu.option_menu, menu);
-    //resetTimer(); //reset the timer when the app starts up
 
-    menu.add(0, R.id.privacy_policy, 2, menuIconWithText(getResources().getDrawable(R.drawable.ic_lock_black), "Privacy Policy"));
-    menu.add(0, R.id.statistics_activity, 1, menuIconWithText(getResources().getDrawable(R.drawable.ic_data_usage_black), "Statistics"));
-    menu.add(0, Menu.NONE, 3, menuIconWithText(getResources().getDrawable(R.drawable.ic_settings_black), "Settings"));
+//    menu.add(0, R.id.settings, 0, menuIconWithText(getResources().getDrawable(R.drawable.ic_settings_black), "Settings"));
 
     return true;
   }
@@ -626,8 +624,8 @@ public abstract class CameraActivity extends AppCompatActivity
 
     switch (id) {
 
-      case R.id.setting:
-        //open setting
+      case R.id.settings:
+        startActivity(new Intent(this, SettingsActivity.class));
         break;
 
       default:
