@@ -1,0 +1,20 @@
+<resources>
+    <string name="tfe_od_app_name" translation_description="Object Detection demo app [CHAR_LIMIT=40]">TFL Detect</string>
+    <string name="tfe_od_camera_error" translation_description="Error regarding camera support[CHAR_LIMIT=40]">This device doesn\'t support Camera2 API.</string>
+
+    <string name="enter_timer_name_optional">Enter Timer Name (Optional)</string>
+    <string name="repeat">Repeat</string>
+    <string name="title_activity_main2">MainActivity2</string>
+    <string name="_00_00_00">00:00:00</string>
+    <string name="_000">000</string>
+    <string name="timer_name">Timer Name</string>
+    <string name="smiley_face">Smiley Face</string>
+    <string name="heartbeat">Heartbeat</string>
+    <string name="sound">Sound</string>
+    <string name="statistics">Statistics</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="setting">Setting</string>
+    <string name="custom_timer">Custom Timer</string>
+    <string name="Notification">Notification</string>
+    <string name="app_name">Smart Animal Detector</string>
+</resources>
