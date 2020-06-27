@@ -51,6 +51,7 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -102,6 +103,18 @@ public abstract class CameraActivity extends AppCompatActivity
   Button mBtnCapture;
   CameraConnectionFragment camera2Fragment;
 
+  //Added this for settings
+  private SwitchCompat mGeneralBoxToggle;
+  private SeekBar mGeneralSeekBar;
+
+  private SwitchCompat mGeneralSwitchTakePhoto;
+
+  private SwitchCompat mBirdTakePhoto;
+  private SeekBar mBirdSeekBar;
+
+  private SwitchCompat mSquirrelSwitchTakePhoto;
+  private SeekBar mSquirrelSeekBar;
+
   private static CameraActivity instance;
 
   public CameraActivity() {
@@ -139,6 +152,9 @@ public abstract class CameraActivity extends AppCompatActivity
     gestureLayout = findViewById(R.id.gesture_layout);
     sheetBehavior = BottomSheetBehavior.from(bottomSheetLayout);
     bottomSheetArrowImageView = findViewById(R.id.bottom_sheet_arrow);
+
+    //settings
+
 
     ViewTreeObserver vto = gestureLayout.getViewTreeObserver();
     vto.addOnGlobalLayoutListener(

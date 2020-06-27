@@ -1,0 +1,74 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory android:title="General">
+        <SwitchPreferenceCompat
+            android:id="@+id/generalBoxToggle"
+            app:key="generalBoxAppearance"
+            app:title="Show Boxes around animals"
+            app:summaryOff="Boxes won't show up around detected animals"
+            app:summaryOn="Boxes will show up around detected animals" />
+        <SeekBarPreference
+            android:id="@+id/generalBoxSeekBar"
+            app:dependency="generalBoxAppearance"
+            android:key="generalSlider"
+            android:title="Box Sensitivity"
+            android:summary="Move slider Right to show boxes more often"
+            android:max="10"
+            android:defaultValue="5" />
+    </PreferenceCategory>
+
+
+    <PreferenceCategory android:title="Animals Category Settings">
+        <SwitchPreferenceCompat
+            android:id="@+id/generalSwitchTakePhoto"
+            android:key="generalTakePhoto"
+            android:summaryOff="Photos won't be taken automatically"
+            android:summaryOn="Photos will be taken based upon animal detection using machine learning"
+            android:title="Take Photos automatically" />
+
+
+        <PreferenceCategory android:title="Bird">
+            <SwitchPreferenceCompat
+                android:id="@+id/birdTakePhoto"
+                android:key="birdTakePhoto"
+                android:summaryOff="Photos of the birds won't be taken"
+                android:summaryOn="Photos of the birds will be taken upon detection"
+                android:title="Take Photos of the Birds"
+                app:dependency="generalTakePhoto"/>
+
+            <SeekBarPreference
+                android:id="@+id/birdSeekBar"
+                android:defaultValue="5"
+                android:key="birdSlider"
+                android:max="10"
+                android:summary="Move slider Left to take pictures at lower confidence level meaning more often"
+                android:title="Bird AutoCapture Sensitivity"
+                android:dependency="birdTakePhoto"
+                app:dependency="generalTakePhoto"/>
+        </PreferenceCategory>
+
+
+        <PreferenceCategory android:title="Squirrel">
+            <SwitchPreferenceCompat
+                android:id="@+id/squirrelSwitchTakePhoto"
+                android:key="squirrelTakePhoto"
+                android:summaryOff="Photos of the squirrels won't be taken"
+                android:summaryOn="Photos of the squirrels will be taken upon detection"
+                android:title="Take Photos of the Squirrels"
+                app:dependency="generalTakePhoto" />
+            <SeekBarPreference
+                android:id="@+id/squirrelSeekBar"
+                android:defaultValue="5"
+                android:key="squirrelSlider"
+                android:max="10"
+                android:summary="Move slider Left to take pictures at lower confidence level meaning more often"
+                android:title="squirrel AutoCapture Sensitivity"
+                android:dependency="squirrelTakePhoto"
+                app:dependency="generalTakePhoto" />
+        </PreferenceCategory>
+
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
