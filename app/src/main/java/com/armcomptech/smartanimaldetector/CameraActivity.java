@@ -52,6 +52,7 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -68,6 +69,7 @@ import com.armcomptech.smartanimaldetector.tflite.Classifier;
 
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Objects;
 
 public abstract class CameraActivity extends AppCompatActivity
         implements OnImageAvailableListener,
@@ -104,15 +106,15 @@ public abstract class CameraActivity extends AppCompatActivity
   CameraConnectionFragment camera2Fragment;
 
   //Added this for settings
-  private SwitchCompat mGeneralBoxToggle;
-  private SeekBar mGeneralSeekBar;
+  private Switch mGeneralBoxSwitch;
+  private SeekBar mGeneralBoxSeekBar;
 
-  private SwitchCompat mGeneralSwitchTakePhoto;
+  private Switch mGeneralSwitchTakePhoto;
 
-  private SwitchCompat mBirdTakePhoto;
+  private Switch mBirdTakePhoto;
   private SeekBar mBirdSeekBar;
 
-  private SwitchCompat mSquirrelSwitchTakePhoto;
+  private Switch mSquirrelSwitchTakePhoto;
   private SeekBar mSquirrelSeekBar;
 
   private static CameraActivity instance;
@@ -134,7 +136,7 @@ public abstract class CameraActivity extends AppCompatActivity
     setContentView(R.layout.tfe_od_activity_camera);
     Toolbar toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
-    getSupportActionBar().setDisplayShowTitleEnabled(false);
+    Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
 
     mBtnCapture = findViewById(R.id.btnCapture);
 
@@ -154,7 +156,18 @@ public abstract class CameraActivity extends AppCompatActivity
     bottomSheetArrowImageView = findViewById(R.id.bottom_sheet_arrow);
 
     //settings
+//    mGeneralBoxSwitch = findViewById(R.id.generalBoxSwitch);
+//    mGeneralBoxSeekBar = findViewById(R.id.generalBoxSeekBar);
+//
+//    mGeneralSwitchTakePhoto = findViewById(R.id.generalSwitchTakePhoto);
+//
+//    mBirdTakePhoto = findViewById(R.id.birdTakePhoto);
+//    mBirdSeekBar = findViewById(R.id.birdSeekBar);
+//
+//    mSquirrelSwitchTakePhoto = findViewById(R.id.squirrelSwitchTakePhoto);
+//    mSquirrelSeekBar = findViewById(R.id.squirrelSeekBar);
 
+//    Boolean x = mGeneralBoxSwitch.isChecked();
 
     ViewTreeObserver vto = gestureLayout.getViewTreeObserver();
     vto.addOnGlobalLayoutListener(
