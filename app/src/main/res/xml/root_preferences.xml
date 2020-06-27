@@ -8,15 +8,15 @@
             android:summaryOff="Boxes won't show up around detected animals"
             android:summaryOn="Boxes will show up around detected animals"
             android:defaultValue="true"
-            app:isPreferenceVisible="false" />
+            app:isPreferenceVisible="true" />
         <SeekBarPreference
             android:dependency="generalBoxSwitch"
             android:key="generalBoxSeekBar"
             android:title="Box Sensitivity"
-            android:summary="Move slider Right to show boxes more often"
-            android:max="10"
-            android:defaultValue="5"
-            app:isPreferenceVisible="false" />
+            android:summary="Move slider Left to show boxes at confidence level meaning more often"
+            android:max="100"
+            android:defaultValue="10"
+            app:isPreferenceVisible="true" />
     </PreferenceCategory>
 
 
@@ -26,7 +26,7 @@
             android:summaryOff="Photos won't be taken automatically"
             android:summaryOn="Photos will be taken based upon animal detection using machine learning"
             android:title="Take Photos automatically"
-            app:isPreferenceVisible="false"/>
+            app:isPreferenceVisible="true"/>
 
 
         <PreferenceCategory android:title="Bird">
@@ -36,16 +36,16 @@
                 android:summaryOn="Photos of the birds will be taken upon detection"
                 android:title="Take Photos of the Birds"
                 app:dependency="generalSwitchTakePhoto"
-                app:isPreferenceVisible="false"/>
+                app:isPreferenceVisible="true"/>
 
             <SeekBarPreference
-                android:defaultValue="5"
+                android:defaultValue="10"
                 android:key="birdSeekBar"
-                android:max="10"
+                android:max="100"
                 android:summary="Move slider Left to take pictures at lower confidence level meaning more often"
                 android:title="Bird AutoCapture Sensitivity"
                 android:dependency="birdSwitchTakePhoto"
-                app:isPreferenceVisible="false"/>
+                app:isPreferenceVisible="true"/>
         </PreferenceCategory>
 
 
@@ -56,15 +56,15 @@
                 android:summaryOn="Photos of the squirrels will be taken upon detection"
                 android:title="Take Photos of the Squirrels"
                 app:dependency="generalSwitchTakePhoto"
-                app:isPreferenceVisible="false"/>
+                app:isPreferenceVisible="true"/>
             <SeekBarPreference
-                android:defaultValue="5"
+                android:defaultValue="10"
                 android:key="squirrelSeekBar"
-                android:max="10"
+                android:max="100"
                 android:summary="Move slider Left to take pictures at lower confidence level meaning more often"
                 android:title="squirrel AutoCapture Sensitivity"
                 app:dependency="squirrelSwitchTakePhoto"
-                app:isPreferenceVisible="false"/>
+                app:isPreferenceVisible="true"/>
         </PreferenceCategory>
 
 

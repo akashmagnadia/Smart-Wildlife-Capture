@@ -17,9 +17,11 @@
 package com.armcomptech.smartanimaldetector;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
@@ -51,8 +53,6 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.SeekBar;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -60,6 +60,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
+import androidx.preference.PreferenceManager;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
@@ -81,6 +82,7 @@ public abstract class CameraActivity extends AppCompatActivity
   private static final int PERMISSIONS_REQUEST = 1;
 
   private static final String PERMISSION_CAMERA = Manifest.permission.CAMERA;
+  private static final String WRITE_EXTERNAL_STORAGE = Manifest.permission.WRITE_EXTERNAL_STORAGE;
   protected int previewWidth = 0;
   protected int previewHeight = 0;
   private Handler handler;
@@ -101,21 +103,22 @@ public abstract class CameraActivity extends AppCompatActivity
   private SwitchCompat apiSwitchCompat;
   private TextView threadsTextView;
 
+  private TextView mCaptureCount;
+  int captureCount = 0;
+
+  private Boolean generalBoxSwitch;
+  private int generalBoxSeekBar;
+  private Boolean generalSwitchTakePhoto;
+  private Boolean birdSwitchTakePhoto;
+  private int birdSeekBar;
+  private Boolean squirrelSwitchTakePhoto;
+  private int squirrelSeekBar;
+
+  private Boolean greenLightToTakePhoto = true;
+
   private boolean debug = false;
   Button mBtnCapture;
   CameraConnectionFragment camera2Fragment;
-
-  //Added this for settings
-  private Switch mGeneralBoxSwitch;
-  private SeekBar mGeneralBoxSeekBar;
-
-  private Switch mGeneralSwitchTakePhoto;
-
-  private Switch mBirdTakePhoto;
-  private SeekBar mBirdSeekBar;
-
-  private Switch mSquirrelSwitchTakePhoto;
-  private SeekBar mSquirrelSeekBar;
 
   private static CameraActivity instance;
 
@@ -154,20 +157,7 @@ public abstract class CameraActivity extends AppCompatActivity
     gestureLayout = findViewById(R.id.gesture_layout);
     sheetBehavior = BottomSheetBehavior.from(bottomSheetLayout);
     bottomSheetArrowImageView = findViewById(R.id.bottom_sheet_arrow);
-
-    //settings
-//    mGeneralBoxSwitch = findViewById(R.id.generalBoxSwitch);
-//    mGeneralBoxSeekBar = findViewById(R.id.generalBoxSeekBar);
-//
-//    mGeneralSwitchTakePhoto = findViewById(R.id.generalSwitchTakePhoto);
-//
-//    mBirdTakePhoto = findViewById(R.id.birdTakePhoto);
-//    mBirdSeekBar = findViewById(R.id.birdSeekBar);
-//
-//    mSquirrelSwitchTakePhoto = findViewById(R.id.squirrelSwitchTakePhoto);
-//    mSquirrelSeekBar = findViewById(R.id.squirrelSeekBar);
-
-//    Boolean x = mGeneralBoxSwitch.isChecked();
+    mCaptureCount = findViewById(R.id.captureCount);
 
     ViewTreeObserver vto = gestureLayout.getViewTreeObserver();
     vto.addOnGlobalLayoutListener(
@@ -224,6 +214,17 @@ public abstract class CameraActivity extends AppCompatActivity
 
     plusImageView.setOnClickListener(this);
     minusImageView.setOnClickListener(this);
+  }
+
+  public void checkForSettings() {
+    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+    generalBoxSwitch = sharedPreferences.getBoolean("generalBoxSwitch", true);
+    generalBoxSeekBar = sharedPreferences.getInt("generalBoxSeekBar", 50);
+    generalSwitchTakePhoto = sharedPreferences.getBoolean("generalSwitchTakePhoto", false);
+    birdSwitchTakePhoto = sharedPreferences.getBoolean("birdSwitchTakePhoto", false);
+    birdSeekBar = sharedPreferences.getInt("birdSeekBar", 50);
+    squirrelSwitchTakePhoto = sharedPreferences.getBoolean("squirrelSwitchTakePhoto", false);
+    squirrelSeekBar = sharedPreferences.getInt("squirrelSeekBar", 50);
   }
 
   protected int[] getRgbBytes() {
@@ -350,12 +351,16 @@ public abstract class CameraActivity extends AppCompatActivity
 
   @Override
   public synchronized void onStart() {
+    greenLightToTakePhoto = true;
     LOGGER.d("onStart " + this);
+    checkForSettings();
     super.onStart();
   }
 
   @Override
   public synchronized void onResume() {
+    checkForSettings();
+    greenLightToTakePhoto = true;
     LOGGER.d("onResume " + this);
     super.onResume();
 
@@ -366,6 +371,7 @@ public abstract class CameraActivity extends AppCompatActivity
 
   @Override
   public synchronized void onPause() {
+    greenLightToTakePhoto = false;
     LOGGER.d("onPause " + this);
 
     handlerThread.quitSafely();
@@ -382,6 +388,7 @@ public abstract class CameraActivity extends AppCompatActivity
 
   @Override
   public synchronized void onStop() {
+    greenLightToTakePhoto = false;
     LOGGER.d("onStop " + this);
     super.onStop();
   }
@@ -422,7 +429,9 @@ public abstract class CameraActivity extends AppCompatActivity
 
   private boolean hasPermission() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-      return checkSelfPermission(PERMISSION_CAMERA) == PackageManager.PERMISSION_GRANTED;
+
+      return (checkSelfPermission(PERMISSION_CAMERA) == PackageManager.PERMISSION_GRANTED) &&
+              (checkSelfPermission(WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
     } else {
       return true;
     }
@@ -433,11 +442,18 @@ public abstract class CameraActivity extends AppCompatActivity
       if (shouldShowRequestPermissionRationale(PERMISSION_CAMERA)) {
         Toast.makeText(
                 CameraActivity.this,
-                "Camera permission is required for this demo",
+                "Camera permission is required to use this app",
                 Toast.LENGTH_LONG)
                 .show();
       }
-      requestPermissions(new String[] {PERMISSION_CAMERA}, PERMISSIONS_REQUEST);
+      if (shouldShowRequestPermissionRationale(WRITE_EXTERNAL_STORAGE)) {
+        Toast.makeText(
+                CameraActivity.this,
+                "Storage permission required to save photos",
+                Toast.LENGTH_LONG)
+                .show();
+      }
+      requestPermissions(new String[] {PERMISSION_CAMERA, WRITE_EXTERNAL_STORAGE}, PERMISSIONS_REQUEST);
     }
   }
 
@@ -541,13 +557,38 @@ public abstract class CameraActivity extends AppCompatActivity
     return debug;
   }
 
+  public void incrementCaptureCount() {
+    runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        captureCount++;
+        mCaptureCount.setText(String.valueOf("Captures: " + captureCount));
+      }
+    });
+  }
+
   //TODO: change the objects and models
   void checkforObject(List<Classifier.Recognition> results) {
-    for (final Classifier.Recognition result : results) {
-      if(result.getTitle().equals("Squirrel") && (result.getConfidence() >= 0.60)) {
-//        camera2Fragment.takePicture();
-      } else if(result.getTitle().equals("Bird") && (result.getConfidence() >= 0.60)) {
-//        camera2Fragment.takePicture();
+    if (generalSwitchTakePhoto) { //if green light to take photos
+      for (final Classifier.Recognition result : results) {
+
+        if(result.getTitle().equals("Squirrel")
+                && (result.getConfidence() >= (float)(squirrelSeekBar/100))
+                && squirrelSwitchTakePhoto && generalSwitchTakePhoto && greenLightToTakePhoto) {
+
+          //increase capture count and show it user
+          incrementCaptureCount();
+
+          camera2Fragment.takePicture(); // if green light for squirrel and confidence level is surpassed
+        } else if(result.getTitle().equals("Bird")
+                && (result.getConfidence() >= (float)(birdSeekBar/100))
+                && birdSwitchTakePhoto && generalSwitchTakePhoto && greenLightToTakePhoto) {
+
+          //increase capture count and show it user
+          incrementCaptureCount();
+
+          camera2Fragment.takePicture(); // if green light for bird and confidence level is surpassed
+        }
       }
     }
   }
@@ -654,6 +695,7 @@ public abstract class CameraActivity extends AppCompatActivity
     switch (id) {
 
       case R.id.settings:
+        greenLightToTakePhoto = false;
         startActivity(new Intent(this, SettingsActivity.class));
         break;
 

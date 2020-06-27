@@ -16,6 +16,7 @@
 
 package com.armcomptech.smartanimaldetector;
 
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
@@ -30,6 +31,8 @@ import android.os.SystemClock;
 import android.util.Size;
 import android.util.TypedValue;
 import android.widget.Toast;
+
+import androidx.preference.PreferenceManager;
 
 import com.armcomptech.smartanimaldetector.customview.OverlayView;
 import com.armcomptech.smartanimaldetector.customview.OverlayView.DrawCallback;
@@ -59,7 +62,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   private static final String TF_OD_API_LABELS_FILE = "file:///android_asset/labelmap.txt";
   private static final DetectorMode MODE = DetectorMode.TF_OD_API;
   // Minimum detection confidence to track a detection.
-  private static final float MINIMUM_CONFIDENCE_TF_OD_API = 0.5f;
+  private static float MINIMUM_CONFIDENCE_TF_OD_API = 0.5f;
   private static final boolean MAINTAIN_ASPECT = false;
   private static final Size DESIRED_PREVIEW_SIZE = new Size(640, 480);
   private static final boolean SAVE_PREVIEW_BITMAP = false;
@@ -191,11 +194,14 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             paint.setStyle(Style.STROKE);
             paint.setStrokeWidth(2.0f);
 
-            float minimumConfidence = MINIMUM_CONFIDENCE_TF_OD_API;
-            switch (MODE) {
-              case TF_OD_API:
-                minimumConfidence = MINIMUM_CONFIDENCE_TF_OD_API;
-                break;
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(CameraActivity.getContext());
+            Boolean generalBoxSwitch = sharedPreferences.getBoolean("generalBoxSwitch", true);
+
+            float minimumConfidence;
+            if (!generalBoxSwitch) {
+              minimumConfidence = (float) 100;
+            } else {
+              minimumConfidence = (float)sharedPreferences.getInt("generalBoxSeekBar", 0)/100;
             }
 
             final List<Classifier.Recognition> mappedRecognitions =

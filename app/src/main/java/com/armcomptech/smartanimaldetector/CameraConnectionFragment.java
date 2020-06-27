@@ -27,6 +27,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
+import android.graphics.Camera;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.RectF;
@@ -165,10 +166,6 @@ public class CameraConnectionFragment extends Fragment {
 
     @Override
     public void onImageAvailable(ImageReader reader) {
-
-
-
-      Boolean isEmulated = Environment.isExternalStorageEmulated();
       File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "Tensorflow Detection");
 //      File mediaStorageDir = new File(Environment.getDataDirectory(), "MyCameraApp");
       // This location works best if you want the created images to be shared
@@ -215,8 +212,6 @@ public class CameraConnectionFragment extends Fragment {
 
       ContentResolver cr = CameraActivity.getContext().getContentResolver();
       cr.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-
-
 
       backgroundHandler.post(new ImageSaver(reader.acquireNextImage(), mFile));
     }
@@ -469,12 +464,7 @@ public class CameraConnectionFragment extends Fragment {
     final Activity activity = getActivity();
     if (activity != null) {
       activity.runOnUiThread(
-              new Runnable() {
-                @Override
-                public void run() {
-                  Toast.makeText(activity, text, Toast.LENGTH_SHORT).show();
-                }
-              });
+              () -> Toast.makeText(activity, text, Toast.LENGTH_SHORT).show());
     }
   }
 
@@ -777,6 +767,7 @@ public class CameraConnectionFragment extends Fragment {
               CameraMetadata.CONTROL_AF_TRIGGER_START);
       // Tell #mCaptureCallback to wait for the lock.
       mState = STATE_WAITING_LOCK;
+
       captureSession.capture(previewRequestBuilder.build(), captureCallback,
               backgroundHandler);
     } catch (CameraAccessException e) {
@@ -833,7 +824,7 @@ public class CameraConnectionFragment extends Fragment {
         public void onCaptureCompleted(@NonNull CameraCaptureSession session,
                                        @NonNull CaptureRequest request,
                                        @NonNull TotalCaptureResult result) {
-          showToast("Saved: " + mFile);
+//          showToast("Saved: " + mFile);
           Log.d(TAG, mFile.toString());
           unlockFocus();
         }
