@@ -195,7 +195,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             paint.setStrokeWidth(2.0f);
 
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(CameraActivity.getContext());
-            Boolean generalBoxSwitch = sharedPreferences.getBoolean("generalBoxSwitch", true);
+            boolean generalBoxSwitch = sharedPreferences.getBoolean("generalBoxSwitch", true);
 
             float minimumConfidence;
             if (!generalBoxSwitch) {

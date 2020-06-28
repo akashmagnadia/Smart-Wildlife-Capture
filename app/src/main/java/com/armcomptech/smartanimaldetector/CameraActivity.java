@@ -106,15 +106,18 @@ public abstract class CameraActivity extends AppCompatActivity
   private TextView mCaptureCount;
   int captureCount = 0;
 
-  private Boolean generalBoxSwitch;
+  private boolean generalBoxSwitch;
+  private boolean defaultGeneralBoxCheckBox;
   private int generalBoxSeekBar;
-  private Boolean generalSwitchTakePhoto;
-  private Boolean birdSwitchTakePhoto;
+  private boolean generalSwitchTakePhoto;
+  private boolean birdSwitchTakePhoto;
+  private boolean defaultBirdTakePhotoCheckBox;
   private int birdSeekBar;
-  private Boolean squirrelSwitchTakePhoto;
+  private boolean squirrelSwitchTakePhoto;
+  private boolean defaultSquirrelTakePhotoCheckBox;
   private int squirrelSeekBar;
 
-  private Boolean greenLightToTakePhoto = true;
+  private boolean greenLightToTakePhoto = true;
 
   private boolean debug = false;
   Button mBtnCapture;
@@ -218,13 +221,32 @@ public abstract class CameraActivity extends AppCompatActivity
 
   public void checkForSettings() {
     SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
     generalBoxSwitch = sharedPreferences.getBoolean("generalBoxSwitch", true);
-    generalBoxSeekBar = sharedPreferences.getInt("generalBoxSeekBar", 50);
+    defaultGeneralBoxCheckBox = sharedPreferences.getBoolean("defaultGeneralBoxCheckBox", true);
+    if (defaultGeneralBoxCheckBox) {
+      generalBoxSeekBar = SettingsActivity.getDefaultConfidenceLevel(); //default confidence level
+    } else {
+      generalBoxSeekBar = sharedPreferences.getInt("generalBoxSeekBar", 50);
+    }
+
     generalSwitchTakePhoto = sharedPreferences.getBoolean("generalSwitchTakePhoto", false);
+
     birdSwitchTakePhoto = sharedPreferences.getBoolean("birdSwitchTakePhoto", false);
-    birdSeekBar = sharedPreferences.getInt("birdSeekBar", 50);
+    defaultBirdTakePhotoCheckBox = sharedPreferences.getBoolean("defaultBirdTakePhotoCheckBox", true);
+    if (defaultBirdTakePhotoCheckBox) {
+      birdSeekBar = SettingsActivity.getDefaultConfidenceLevel(); //default confidence level
+    } else {
+      birdSeekBar = sharedPreferences.getInt("birdSeekBar", 50);
+    }
+
     squirrelSwitchTakePhoto = sharedPreferences.getBoolean("squirrelSwitchTakePhoto", false);
-    squirrelSeekBar = sharedPreferences.getInt("squirrelSeekBar", 50);
+    defaultSquirrelTakePhotoCheckBox = sharedPreferences.getBoolean("defaultSquirrelTakePhotoCheckBox", true);
+    if (defaultSquirrelTakePhotoCheckBox) {
+      squirrelSeekBar = SettingsActivity.getDefaultConfidenceLevel(); //default confidence level
+    } else {
+      squirrelSeekBar = sharedPreferences.getInt("squirrelSeekBar", 50);
+    }
   }
 
   protected int[] getRgbBytes() {
