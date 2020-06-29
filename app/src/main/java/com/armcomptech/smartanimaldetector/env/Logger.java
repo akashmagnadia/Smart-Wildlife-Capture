@@ -1,4 +1,4 @@
-/* Copyright 2019 The TensorFlow Authors. All Rights Reserved.
+/* Copyright 2020 Akash Magnadia
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import java.util.Set;
 
 /** Wrapper for the platform log function, allows convenient message prefixing and log disabling. */
 public final class Logger {
-  private static final String DEFAULT_TAG = "tensorflow";
+  private static final String DEFAULT_TAG = "smartAnimalDetector";
   private static final int DEFAULT_MIN_LOG_LEVEL = Log.DEBUG;
 
   // Classes to be ignored when examining the stack trace

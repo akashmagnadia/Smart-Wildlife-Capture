@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The TensorFlow Authors. All Rights Reserved.
+ * Copyright 2020 Akash Magnadia
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -166,7 +166,7 @@ public class CameraConnectionFragment extends Fragment {
 
     @Override
     public void onImageAvailable(ImageReader reader) {
-      File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "Tensorflow Detection");
+      File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "Smart Animal Detector");
 //      File mediaStorageDir = new File(Environment.getDataDirectory(), "MyCameraApp");
       // This location works best if you want the created images to be shared
       // between applications and persist after your app has been uninstalled.
@@ -483,7 +483,7 @@ public class CameraConnectionFragment extends Fragment {
   public void onActivityCreated(final Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
 
-    File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "Tensorflow Detection");
+    File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "Smart Animal Detector");
     String timeStamp  = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
 //      mFile = new File(mediaStorageDir.getPath() + File.separator +
 //              "IMG_"+ timeStamp + ".jpg");
