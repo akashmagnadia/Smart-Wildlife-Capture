@@ -7,8 +7,15 @@
     <item
         android:id="@+id/settings"
         android:title="@string/setting"
-        android:icon="@drawable/ic_settings_white"
-        app:showAsAction="ifRoom"
-        android:visible="true"/>
+        android:icon="@drawable/ic_settings_black"
+        app:showAsAction="never"
+        android:visible="false"/>
+
+    <item
+        android:id="@+id/privacy_policy"
+        android:title="@string/privacy_policy"
+        android:icon="@drawable/ic_lock_black"
+        app:showAsAction="never"
+        android:visible="false" />
 
 </menu>

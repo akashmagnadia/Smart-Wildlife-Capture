@@ -39,7 +39,8 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:layout_alignParentTop="true"
-            android:background="@color/tfe_semi_transparent">
+            android:background="@color/tfe_semi_transparent"
+            android:backgroundTint="#EDE3E3">
 
             <Button
                 android:id="@+id/btnCapture"
@@ -59,7 +60,6 @@
                 android:text="Captures: 0"
                 android:textColor="#FFFFFF"
                 android:textSize="18sp" />
-
 
 
         </androidx.appcompat.widget.Toolbar>

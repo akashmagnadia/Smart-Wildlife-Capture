@@ -33,6 +33,7 @@ import android.media.Image;
 import android.media.Image.Plane;
 import android.media.ImageReader;
 import android.media.ImageReader.OnImageAvailableListener;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -584,7 +585,7 @@ public abstract class CameraActivity extends AppCompatActivity
       @Override
       public void run() {
         captureCount++;
-        mCaptureCount.setText(String.valueOf("Captures: " + captureCount));
+        mCaptureCount.setText("Captures: " + captureCount);
       }
     });
   }
@@ -689,7 +690,8 @@ public abstract class CameraActivity extends AppCompatActivity
     MenuInflater inflater = getMenuInflater();
     inflater.inflate(R.menu.option_menu, menu);
 
-//    menu.add(0, R.id.settings, 0, menuIconWithText(getResources().getDrawable(R.drawable.ic_settings_black), "Settings"));
+    menu.add(0, R.id.settings, 0, menuIconWithText(getResources().getDrawable(R.drawable.ic_settings_black), "Settings"));
+    menu.add(0, R.id.privacy_policy, 1, menuIconWithText(getResources().getDrawable(R.drawable.ic_lock_black), "Privacy Policy"));
 
     return true;
   }
@@ -719,6 +721,12 @@ public abstract class CameraActivity extends AppCompatActivity
       case R.id.settings:
         greenLightToTakePhoto = false;
         startActivity(new Intent(this, SettingsActivity.class));
+        break;
+
+      case R.id.privacy_policy:
+        Intent myWebLink = new Intent(android.content.Intent.ACTION_VIEW);
+        myWebLink.setData(Uri.parse("https://smartanimaldetector.blogspot.com/2020/06/smart-animal-detector-privacy-policy.html"));
+        startActivity(myWebLink);
         break;
 
       default:

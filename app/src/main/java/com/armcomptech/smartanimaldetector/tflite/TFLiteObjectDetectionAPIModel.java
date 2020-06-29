@@ -78,7 +78,6 @@ public class TFLiteObjectDetectionAPIModel implements Classifier {
   private float[] numDetections;
 
   private ByteBuffer imgData;
-
   private Interpreter tfLite;
 
   private TFLiteObjectDetectionAPIModel() {}
