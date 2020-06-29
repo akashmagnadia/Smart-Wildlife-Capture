@@ -17,12 +17,12 @@
 package com.armcomptech.smartanimaldetector;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
 import android.hardware.camera2.CameraAccessException;
@@ -36,6 +36,7 @@ import android.media.ImageReader.OnImageAvailableListener;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Trace;
@@ -61,6 +62,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
@@ -69,6 +71,7 @@ import com.armcomptech.smartanimaldetector.env.ImageUtils;
 import com.armcomptech.smartanimaldetector.env.Logger;
 import com.armcomptech.smartanimaldetector.tflite.Classifier;
 
+import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Objects;
@@ -105,7 +108,6 @@ public abstract class CameraActivity extends AppCompatActivity
   private TextView threadsTextView;
 
   private TextView mCaptureCount;
-  int captureCount = 0;
 
   private boolean generalBoxSwitch;
   private boolean defaultGeneralBoxCheckBox;
@@ -142,6 +144,7 @@ public abstract class CameraActivity extends AppCompatActivity
 
     setContentView(R.layout.tfe_od_activity_camera);
     Toolbar toolbar = findViewById(R.id.toolbar);
+    toolbar.getOverflowIcon().setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_ATOP);
     setSupportActionBar(toolbar);
     Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
 
@@ -553,6 +556,7 @@ public abstract class CameraActivity extends AppCompatActivity
       {
         //when button capture is clicked
         camera2Fragment.takePicture();
+        refreshCaptureCount();
       });
 
     } else {
@@ -580,14 +584,19 @@ public abstract class CameraActivity extends AppCompatActivity
     return debug;
   }
 
-  public void incrementCaptureCount() {
-    runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        captureCount++;
-        mCaptureCount.setText("Captures: " + captureCount);
-      }
-    });
+  public void refreshCaptureCount() {
+    File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "Smart Animal Detector");
+
+    File[] list = file.listFiles();
+    int count = 0;
+    for (File f: list){
+      String name = f.getName();
+      if (name.endsWith(".jpg"))
+        count++;
+    }
+
+    int finalCount = count;
+    runOnUiThread(() -> mCaptureCount.setText("Captures: " + finalCount));
   }
 
   //TODO: change the objects and models
@@ -599,16 +608,16 @@ public abstract class CameraActivity extends AppCompatActivity
                 && (result.getConfidence() >= (float)(squirrelSeekBar/100))
                 && squirrelSwitchTakePhoto && generalSwitchTakePhoto && greenLightToTakePhoto) {
 
-          //increase capture count and show it user
-          incrementCaptureCount();
+          //show capture count to user
+          refreshCaptureCount();
 
           camera2Fragment.takePicture(); // if green light for squirrel and confidence level is surpassed
         } else if(result.getTitle().equals("Bird")
                 && (result.getConfidence() >= (float)(birdSeekBar/100))
                 && birdSwitchTakePhoto && generalSwitchTakePhoto && greenLightToTakePhoto) {
 
-          //increase capture count and show it user
-          incrementCaptureCount();
+          //show capture count to user
+          refreshCaptureCount();
 
           camera2Fragment.takePicture(); // if green light for bird and confidence level is surpassed
         }

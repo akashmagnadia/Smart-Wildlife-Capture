@@ -179,12 +179,9 @@ public class CameraConnectionFragment extends Fragment {
       }
 
       String timeStamp  = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-//      mFile = new File(mediaStorageDir.getPath() + File.separator +
-//              "IMG_"+ timeStamp + ".jpg");
 
       mFile = new File(mediaStorageDir + File.separator +
               "IMG_"+ timeStamp + ".jpg");
-
 
       OutputStream fOut = null;
       File file = mFile;
@@ -485,8 +482,6 @@ public class CameraConnectionFragment extends Fragment {
 
     File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "Smart Animal Detector");
     String timeStamp  = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-//      mFile = new File(mediaStorageDir.getPath() + File.separator +
-//              "IMG_"+ timeStamp + ".jpg");
 
     mFile = new File(mediaStorageDir + File.separator +
             "IMG_"+ timeStamp + ".jpg");
