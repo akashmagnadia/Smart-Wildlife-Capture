@@ -23,8 +23,10 @@ import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
 import android.view.LayoutInflater;
@@ -37,12 +39,18 @@ import com.armcomptech.smartanimaldetector.customview.AutoFitTextureView;
 import com.armcomptech.smartanimaldetector.env.ImageUtils;
 import com.armcomptech.smartanimaldetector.env.Logger;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import static android.content.Intent.getIntent;
 
 public class LegacyCameraConnectionFragment extends Fragment {
+  private static final String TAG = "LegacyCamera";
   private static final Logger LOGGER = new Logger();
   /** Conversion from screen rotation to JPEG orientation. */
   private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
@@ -207,4 +215,38 @@ public class LegacyCameraConnectionFragment extends Fragment {
     }
     return -1; // No camera found
   }
+
+  public void takePicture() {
+    camera.takePicture(null, null, mPicture);
+  }
+
+  private Camera.PictureCallback mPicture = (data, camera) -> {
+    Log.d(TAG, "Attempting to store picture...");
+
+    File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "Smart Wildlife Capture");
+
+    // Create the storage directory if it does not exist
+    if (! mediaStorageDir.exists()){
+      if (! mediaStorageDir.mkdirs()){
+        Log.d("MyCameraApp", "failed to create directory");
+      }
+    }
+
+    String timeStamp  = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+
+    File pictureFile = new File(mediaStorageDir + File.separator +
+            "IMG_"+ timeStamp + ".jpg");
+
+    try {
+      FileOutputStream fos = new FileOutputStream(pictureFile);
+      fos.write(data);
+      fos.close();
+    } catch (FileNotFoundException e) {
+      Log.d(TAG, "File not found: " + e.getMessage());
+    } catch (IOException e) {
+      Log.d(TAG, "Error accessing file: " + e.getMessage());
+    }
+
+    camera.startPreview();
+  };
 }

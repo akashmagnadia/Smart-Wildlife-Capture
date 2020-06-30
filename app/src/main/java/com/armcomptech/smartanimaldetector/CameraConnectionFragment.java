@@ -167,7 +167,6 @@ public class CameraConnectionFragment extends Fragment {
     @Override
     public void onImageAvailable(ImageReader reader) {
       File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "Smart Wildlife Capture");
-//      File mediaStorageDir = new File(Environment.getDataDirectory(), "MyCameraApp");
       // This location works best if you want the created images to be shared
       // between applications and persist after your app has been uninstalled.
 

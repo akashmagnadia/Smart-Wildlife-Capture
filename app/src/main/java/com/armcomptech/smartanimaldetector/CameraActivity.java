@@ -125,6 +125,7 @@ public abstract class CameraActivity extends AppCompatActivity
   private boolean debug = false;
   Button mBtnCapture;
   CameraConnectionFragment camera2Fragment;
+  Fragment fragment;
 
   private static CameraActivity instance;
 
@@ -533,7 +534,6 @@ public abstract class CameraActivity extends AppCompatActivity
   protected void setFragment() {
     String cameraId = chooseCamera();
 
-    Fragment fragment;
     if (useCamera2API) {
       camera2Fragment =
               CameraConnectionFragment.newInstance(
@@ -562,6 +562,14 @@ public abstract class CameraActivity extends AppCompatActivity
     } else {
       fragment =
               new LegacyCameraConnectionFragment(this, getLayoutId(), getDesiredPreviewFrameSize());
+      mBtnCapture.setOnClickListener(e ->
+      {
+        //when button capture is clicked
+        ((LegacyCameraConnectionFragment) fragment).takePicture();
+        refreshCaptureCount();
+//        finish();
+//        this.startActivity(new Intent());
+      });
     }
 
     getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
@@ -613,7 +621,14 @@ public abstract class CameraActivity extends AppCompatActivity
           //show capture count to user
           refreshCaptureCount();
 
-          camera2Fragment.takePicture(); // if green light for squirrel and confidence level is surpassed
+          // if green light for squirrel and confidence level is surpassed
+          if (camera2Fragment != null) {
+            camera2Fragment.takePicture();
+            startActivity(new Intent());
+          } else {
+            ((LegacyCameraConnectionFragment) fragment).takePicture();
+          }
+
         } else if(result.getTitle().equals("Bird")
                 && (result.getConfidence() >= (float)(birdSeekBar/100))
                 && birdSwitchTakePhoto && generalSwitchTakePhoto && greenLightToTakePhoto) {
@@ -621,7 +636,13 @@ public abstract class CameraActivity extends AppCompatActivity
           //show capture count to user
           refreshCaptureCount();
 
-          camera2Fragment.takePicture(); // if green light for bird and confidence level is surpassed
+          // if green light for squirrel and confidence level is surpassed
+          if (camera2Fragment != null) {
+            camera2Fragment.takePicture();
+            startActivity(new Intent());
+          } else {
+            ((LegacyCameraConnectionFragment) fragment).takePicture();
+          }
         }
       }
     }
