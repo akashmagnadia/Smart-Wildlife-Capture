@@ -624,7 +624,6 @@ public abstract class CameraActivity extends AppCompatActivity
             camera2Fragment.takePicture();
           } else {
             ((LegacyCameraConnectionFragment) fragment).takePicture();
-            startActivity(new Intent());
           }
 
         } else if(result.getTitle().equals("Bird")
@@ -639,7 +638,6 @@ public abstract class CameraActivity extends AppCompatActivity
             camera2Fragment.takePicture();
           } else {
             ((LegacyCameraConnectionFragment) fragment).takePicture();
-            startActivity(new Intent());
           }
         }
       }
