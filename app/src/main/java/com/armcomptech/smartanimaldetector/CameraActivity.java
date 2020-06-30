@@ -567,8 +567,6 @@ public abstract class CameraActivity extends AppCompatActivity
         //when button capture is clicked
         ((LegacyCameraConnectionFragment) fragment).takePicture();
         refreshCaptureCount();
-//        finish();
-//        this.startActivity(new Intent());
       });
     }
 
@@ -624,9 +622,9 @@ public abstract class CameraActivity extends AppCompatActivity
           // if green light for squirrel and confidence level is surpassed
           if (camera2Fragment != null) {
             camera2Fragment.takePicture();
-            startActivity(new Intent());
           } else {
             ((LegacyCameraConnectionFragment) fragment).takePicture();
+            startActivity(new Intent());
           }
 
         } else if(result.getTitle().equals("Bird")
@@ -639,9 +637,9 @@ public abstract class CameraActivity extends AppCompatActivity
           // if green light for squirrel and confidence level is surpassed
           if (camera2Fragment != null) {
             camera2Fragment.takePicture();
-            startActivity(new Intent());
           } else {
             ((LegacyCameraConnectionFragment) fragment).takePicture();
+            startActivity(new Intent());
           }
         }
       }

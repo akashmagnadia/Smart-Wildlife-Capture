@@ -165,7 +165,7 @@ public class LegacyCameraConnectionFragment extends Fragment {
 
     if (textureView.isAvailable()) {
       if (camera == null) {
-        CameraActivity.getContext().startActivity(new Intent());
+        startActivity(new Intent(DetectorActivity.getContext(), DetectorActivity.class));
       } else {
         camera.startPreview();
       }
