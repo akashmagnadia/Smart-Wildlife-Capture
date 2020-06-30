@@ -1,5 +1,5 @@
 <resources>
-    <string name="tfe_od_app_name" translation_description="Smart Animal Detector [CHAR_LIMIT=40]">Smart Animal Detector</string>
+    <string name="tfe_od_app_name" translation_description="Smart Wildlife Capture [CHAR_LIMIT=40]">Smart Wildlife Capture</string>
     <string name="tfe_od_camera_error" translation_description="Error regarding camera support[CHAR_LIMIT=40]">This device doesn\'t support Camera2 API.</string>
 
     <string name="enter_timer_name_optional">Enter Timer Name (Optional)</string>
@@ -16,7 +16,7 @@
     <string name="setting">Setting</string>
     <string name="custom_timer">Custom Timer</string>
     <string name="Notification">Notification</string>
-    <string name="app_name">Smart Animal Detector</string>
+    <string name="app_name">Smart Wildlife Capture</string>
     <string name="title_activity_settings">SettingsActivity</string>
 
     <!-- Preference Titles -->

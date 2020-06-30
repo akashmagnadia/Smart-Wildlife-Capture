@@ -16,7 +16,9 @@ package com.armcomptech.smartanimaldetector;
  * limitations under the License.
  */
 
+import android.app.Activity;
 import android.app.Fragment;
+import android.content.Intent;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
@@ -37,6 +39,8 @@ import com.armcomptech.smartanimaldetector.env.Logger;
 
 import java.io.IOException;
 import java.util.List;
+
+import static android.content.Intent.getIntent;
 
 public class LegacyCameraConnectionFragment extends Fragment {
   private static final Logger LOGGER = new Logger();
@@ -150,8 +154,13 @@ public class LegacyCameraConnectionFragment extends Fragment {
     // a camera and start preview from here (otherwise, we wait until the surface is ready in
     // the SurfaceTextureListener).
 
+
     if (textureView.isAvailable()) {
-      camera.startPreview();
+      if (camera == null) {
+        CameraActivity.getContext().startActivity(new Intent());
+      } else {
+        camera.startPreview();
+      }
     } else {
       textureView.setSurfaceTextureListener(surfaceTextureListener);
     }

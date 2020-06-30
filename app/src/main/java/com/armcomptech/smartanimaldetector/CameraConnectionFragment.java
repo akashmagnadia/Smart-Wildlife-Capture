@@ -166,7 +166,7 @@ public class CameraConnectionFragment extends Fragment {
 
     @Override
     public void onImageAvailable(ImageReader reader) {
-      File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "Smart Animal Detector");
+      File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "Smart Wildlife Capture");
 //      File mediaStorageDir = new File(Environment.getDataDirectory(), "MyCameraApp");
       // This location works best if you want the created images to be shared
       // between applications and persist after your app has been uninstalled.
@@ -480,7 +480,7 @@ public class CameraConnectionFragment extends Fragment {
   public void onActivityCreated(final Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
 
-    File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "Smart Animal Detector");
+    File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "Smart Wildlife Capture");
     String timeStamp  = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
 
     mFile = new File(mediaStorageDir + File.separator +

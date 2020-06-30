@@ -585,14 +585,16 @@ public abstract class CameraActivity extends AppCompatActivity
   }
 
   public void refreshCaptureCount() {
-    File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "Smart Animal Detector");
+    File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "Smart Wildlife Capture");
 
     File[] list = file.listFiles();
     int count = 0;
-    for (File f: list){
-      String name = f.getName();
-      if (name.endsWith(".jpg"))
-        count++;
+    if (list != null) {
+      for (File f: list){
+        String name = f.getName();
+        if (name.endsWith(".jpg"))
+          count++;
+      }
     }
 
     int finalCount = count;
@@ -699,8 +701,8 @@ public abstract class CameraActivity extends AppCompatActivity
     MenuInflater inflater = getMenuInflater();
     inflater.inflate(R.menu.option_menu, menu);
 
-    menu.add(0, R.id.settings, 0, menuIconWithText(getResources().getDrawable(R.drawable.ic_settings_black), "Settings"));
-    menu.add(0, R.id.privacy_policy, 1, menuIconWithText(getResources().getDrawable(R.drawable.ic_lock_black), "Privacy Policy"));
+    menu.add(0, R.id.settings, 0, menuIconWithText(getResources().getDrawable(R.drawable.ic_baseline_settings_24_black), "Settings"));
+    menu.add(0, R.id.privacy_policy, 1, menuIconWithText(getResources().getDrawable(R.drawable.ic_baseline_lock_24_black), "Privacy Policy"));
 
     return true;
   }

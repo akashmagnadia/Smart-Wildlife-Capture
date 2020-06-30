@@ -63,7 +63,7 @@ public class ImageUtils {
    */
   public static void saveBitmap(final Bitmap bitmap, final String filename) {
     final String root =
-        Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "Smart Animal Detector";
+        Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "Smart Wildlife Capture";
     LOGGER.i("Saving %dx%d bitmap to %s.", bitmap.getWidth(), bitmap.getHeight(), root);
     final File myDir = new File(root);
 
