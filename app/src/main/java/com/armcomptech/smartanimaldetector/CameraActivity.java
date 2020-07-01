@@ -158,6 +158,10 @@ public abstract class CameraActivity extends AppCompatActivity
     }
 
     threadsTextView = findViewById(R.id.threads);
+    int numThreads = 4; //default threads to be used by the device
+    threadsTextView.setText(String.valueOf(numThreads));
+    setNumThreads(numThreads);
+
     plusImageView = findViewById(R.id.plus);
     minusImageView = findViewById(R.id.minus);
     apiSwitchCompat = findViewById(R.id.api_info_switch);

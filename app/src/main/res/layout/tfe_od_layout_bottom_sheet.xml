@@ -122,7 +122,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="40dp"
-            android:text="Change how many threads your device uses in order to decrease inference Time making the processing of each frame faster"
+            android:text="Change how many threads your device uses in order to decrease inference Time making the processing of each frame faster. Recommended thread count is between 3 - 5"
             android:textColor="@android:color/black" />
 
         <LinearLayout
