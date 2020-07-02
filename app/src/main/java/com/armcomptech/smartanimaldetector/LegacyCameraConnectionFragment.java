@@ -18,10 +18,18 @@ package com.armcomptech.smartanimaldetector;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
+import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -29,11 +37,14 @@ import android.os.HandlerThread;
 import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.RequiresApi;
 
 import com.armcomptech.smartanimaldetector.customview.AutoFitTextureView;
 import com.armcomptech.smartanimaldetector.env.ImageUtils;
@@ -73,6 +84,21 @@ public class LegacyCameraConnectionFragment extends Fragment {
    * {@link TextureView.SurfaceTextureListener} handles several lifecycle events on a {@link
    * TextureView}.
    */
+
+  @RequiresApi(api = Build.VERSION_CODES.M)
+  protected int getScreenOrientation() {
+    switch (((Activity)getContext()).getWindowManager().getDefaultDisplay().getRotation()) {
+      case Surface.ROTATION_270:
+        return 270;
+      case Surface.ROTATION_180:
+        return 180;
+      case Surface.ROTATION_90:
+        return 90;
+      default:
+        return 0;
+    }
+  }
+
   private final TextureView.SurfaceTextureListener surfaceTextureListener =
       new TextureView.SurfaceTextureListener() {
         @Override
@@ -99,7 +125,26 @@ public class LegacyCameraConnectionFragment extends Fragment {
                 CameraConnectionFragment.chooseOptimalSize(
                     sizes, desiredSize.getWidth(), desiredSize.getHeight());
             parameters.setPreviewSize(previewSize.getWidth(), previewSize.getHeight());
-            camera.setDisplayOrientation(90);
+
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+              int orientation = 0; //default
+              orientation = getScreenOrientation();
+
+              if (orientation == 0) { //top up
+                camera.setDisplayOrientation(90);
+              } else if (orientation == 90) { // top to left
+                camera.setDisplayOrientation(0);
+              } else if (orientation == 180) { //upside down
+                camera.setDisplayOrientation(270);
+              } else if (orientation == 270) { //top to right
+                camera.setDisplayOrientation(180);
+              }
+            } else {
+              camera.setDisplayOrientation(90); //default
+            }
+
+//            camera.setDisplayOrientation(/*90*/0);
             camera.setParameters(parameters);
             camera.setPreviewTexture(texture);
           } catch (IOException exception) {
@@ -110,7 +155,14 @@ public class LegacyCameraConnectionFragment extends Fragment {
           Camera.Size s = camera.getParameters().getPreviewSize();
           camera.addCallbackBuffer(new byte[ImageUtils.getYUVByteSize(s.height, s.width)]);
 
-          textureView.setAspectRatio(s.height, s.width);
+          // We fit the aspect ratio of TextureView to the size of preview we picked.
+          final int orientation = getResources().getConfiguration().orientation;
+          if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            textureView.setAspectRatio(s.width, s.height);
+          } else {
+            textureView.setAspectRatio(s.height, s.width);
+          }
+//          textureView.setAspectRatio(s.height, s.width);
 
           camera.startPreview();
         }

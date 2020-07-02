@@ -21,9 +21,11 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.hardware.Camera;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
@@ -44,6 +46,7 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ImageSpan;
 import android.util.Size;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -53,8 +56,10 @@ import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -119,6 +124,8 @@ public abstract class CameraActivity extends AppCompatActivity
   private boolean squirrelSwitchTakePhoto;
   private boolean defaultSquirrelTakePhotoCheckBox;
   private int squirrelSeekBar;
+  private FrameLayout frameLayout;
+  private Toolbar toolbar;
 
   private boolean greenLightToTakePhoto = true;
 
@@ -143,8 +150,12 @@ public abstract class CameraActivity extends AppCompatActivity
     super.onCreate(null);
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    }
+
     setContentView(R.layout.tfe_od_activity_camera);
-    Toolbar toolbar = findViewById(R.id.toolbar);
+    toolbar = findViewById(R.id.toolbar);
     toolbar.getOverflowIcon().setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_ATOP);
     setSupportActionBar(toolbar);
     Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
@@ -221,6 +232,7 @@ public abstract class CameraActivity extends AppCompatActivity
     frameValueTextView = findViewById(R.id.frame_info);
     cropValueTextView = findViewById(R.id.crop_info);
     inferenceTimeTextView = findViewById(R.id.inference_info);
+    frameLayout = findViewById(R.id.container);
 
     apiSwitchCompat.setOnCheckedChangeListener(this);
 
@@ -256,6 +268,28 @@ public abstract class CameraActivity extends AppCompatActivity
     } else {
       squirrelSeekBar = sharedPreferences.getInt("squirrelSeekBar", 50);
     }
+
+    RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+
+    if (getScreenOrientation() == 0 || getScreenOrientation() == 180) {
+      params.setMargins(0, 0, 0,0);
+    } else if (getScreenOrientation() == 90 || getScreenOrientation() == 270) {
+
+      WindowManager wm = (WindowManager) CameraActivity.getContext().getSystemService(Context.WINDOW_SERVICE);
+      getScreenOrientation();
+      Display display = wm.getDefaultDisplay();
+      int width = display.getWidth();
+      int height = display.getHeight();
+
+      if (width > 1000) {
+        params.setMargins(0, 0, 0,0);
+      } else if (height/width < 0.70) {
+        params.setMargins(150, 0, 150,0);
+      } else {
+        params.setMargins(0, 0, 0,0);
+      }
+    }
+    frameLayout.setLayoutParams(params);
   }
 
   protected int[] getRgbBytes() {

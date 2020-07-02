@@ -16,6 +16,7 @@
 
 package com.armcomptech.smartanimaldetector;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
@@ -30,6 +31,8 @@ import android.media.ImageReader.OnImageAvailableListener;
 import android.os.SystemClock;
 import android.util.Size;
 import android.util.TypedValue;
+import android.view.Display;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import androidx.preference.PreferenceManager;
@@ -64,7 +67,8 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   // Minimum detection confidence to track a detection.
   private static float MINIMUM_CONFIDENCE_TF_OD_API = 0.5f;
   private static final boolean MAINTAIN_ASPECT = false;
-  private static final Size DESIRED_PREVIEW_SIZE = new Size(640, 480);
+
+  private static final Size DESIRED_PREVIEW_SIZE = new Size(/*640*//*1920*/640, /*480*//*1080*/480);
   private static final boolean SAVE_PREVIEW_BITMAP = false;
   private static final float TEXT_SIZE_DIP = 10;
   OverlayView trackingOverlay;
@@ -246,6 +250,24 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
   @Override
   protected Size getDesiredPreviewFrameSize() {
+    WindowManager wm = (WindowManager) CameraActivity.getContext().getSystemService(Context.WINDOW_SERVICE);
+    getScreenOrientation();
+    Display display = wm.getDefaultDisplay();
+    int width = display.getWidth();
+    int height = display.getHeight();
+//    return new Size(width, height);
+
+    if (getScreenOrientation() == 0 || getScreenOrientation() == 180) {
+      return DESIRED_PREVIEW_SIZE;
+    } else if (getScreenOrientation() == 90 || getScreenOrientation() == 270) {
+      if (height > width) {
+        return new Size(height, width);
+      } else if (width >= 1000) {
+        return new Size(1920, 1080);
+      } else {
+        return new Size(width, height);
+      }
+    }
     return DESIRED_PREVIEW_SIZE;
   }
 
