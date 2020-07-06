@@ -35,7 +35,7 @@
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
     <string name="share">Share</string>
     <string name="invitation_title">Send Invitation for Smart Animal AutoCapture Application</string>
-    <string name="invitation_message">Try out Smart Wildlife AutoCapture, just setup your phone and let the phone take pictures automatically using machine learning technology</string>
-    <string name="invitation_deep_link">https://play.google.com/store/apps/details?id=com.armcomptech.smartanimaldetector</string>
+    <string name="invitation_message">Try out Smart Wildlife AutoCapture, set up your phone and let the phone take pictures automatically</string>
+    <string name="invitation_deep_link">https://smartanimaldetector.page.link/mVFa</string>
     <string name="invitation_cta">Download Application</string>
 </resources>

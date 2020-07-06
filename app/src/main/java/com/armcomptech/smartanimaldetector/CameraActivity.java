@@ -75,9 +75,10 @@ import androidx.preference.PreferenceManager;
 import com.armcomptech.smartanimaldetector.env.ImageUtils;
 import com.armcomptech.smartanimaldetector.env.Logger;
 import com.armcomptech.smartanimaldetector.tflite.Classifier;
-import com.google.android.gms.appinvite.AppInviteInvitation;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.dynamiclinks.DynamicLink;
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 
 import java.io.File;
 import java.nio.ByteBuffer;
@@ -156,6 +157,21 @@ public abstract class CameraActivity extends AppCompatActivity
     openedApp.putString(FirebaseAnalytics.Param.ITEM_NAME, "Opened Application");
     mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.APP_OPEN, openedApp);
 
+    FirebaseDynamicLinks.getInstance()
+            .getDynamicLink(getIntent())
+            .addOnSuccessListener(this, pendingDynamicLinkData -> {
+              // Get deep link from result (may be null if no link is found)
+              Uri deepLink = null;
+              if (pendingDynamicLinkData != null) {
+                deepLink = pendingDynamicLinkData.getLink();
+              }
+              // Handle the deep link. For example, open the linked
+              // content, or apply promotional credit to the user's
+              // account.
+            })
+            .addOnFailureListener(this, e -> Log.w(TAG, "getDynamicLink:onFailure", e));
+
+    refreshCaptureCount();
     LOGGER.d("onCreate " + this);
     super.onCreate(null);
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -246,23 +262,28 @@ public abstract class CameraActivity extends AppCompatActivity
     minusImageView.setOnClickListener(this);
   }
 
-  @Override
-  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    super.onActivityResult(requestCode, resultCode, data);
-    Log.d(TAG, "onActivityResult: requestCode=" + requestCode + ", resultCode=" + resultCode);
+  private Uri generateContentLink() {
+    Uri baseUrl = Uri.parse("https://smartanimaldetector.page.link/mVFa");
+    String domain = "https://smartanimaldetector.page.link";
 
-    if (requestCode == REQUEST_INVITE) {
-      if (resultCode == RESULT_OK) {
-        // Get the invitation IDs of all sent messages
-        String[] ids = AppInviteInvitation.getInvitationIds(resultCode, data);
-        for (String id : ids) {
-          Log.d(TAG, "onActivityResult: sent invitation " + id);
-        }
-      } else {
-        // Sending failed or it was canceled, show failure message to the user
-        // ...
-      }
-    }
+    DynamicLink link = FirebaseDynamicLinks.getInstance()
+            .createDynamicLink()
+            .setLink(baseUrl)
+            .setDomainUriPrefix(domain)
+            .setAndroidParameters(new DynamicLink.AndroidParameters.Builder("com.armcomptech.smartanimaldetector").build())
+            .buildDynamicLink();
+
+    return link.getUri();
+  }
+
+  private void shareApplication() {
+    Uri link = generateContentLink();
+
+    Intent intent = new Intent(Intent.ACTION_SEND);
+    intent.setType("text/plain");
+    intent.putExtra(Intent.EXTRA_TEXT, link.toString());
+
+    startActivity(Intent.createChooser(intent, "Share Link"));
   }
 
   public void checkForSettings() {
@@ -830,12 +851,7 @@ public abstract class CameraActivity extends AppCompatActivity
         break;
 
       case R.id.share:
-        Intent intent = new AppInviteInvitation.IntentBuilder(getString(R.string.invitation_title))
-                .setMessage(getString(R.string.invitation_message))
-                .setDeepLink(Uri.parse(getString(R.string.invitation_deep_link)))
-                .setCallToActionText(getString(R.string.invitation_cta))
-                .build();
-        startActivityForResult(intent, REQUEST_INVITE);
+        shareApplication();
 
         Bundle shareApp = new Bundle();
         shareApp.putString(FirebaseAnalytics.Param.ITEM_ID, "share");

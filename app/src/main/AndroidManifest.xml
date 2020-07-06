@@ -21,6 +21,22 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.ObjectDetection">
+        <meta-data
+            android:name="firebase_analytics_collection_deactivated"
+            android:value="${analytics_deactivated}" />
+
+        <activity
+            android:name=".CameraActivity"
+            android:label="CameraActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data
+                    android:host="smartanimaldetector.page.link"
+                    android:scheme="https"/>
+            </intent-filter>
+        </activity>
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings" />
