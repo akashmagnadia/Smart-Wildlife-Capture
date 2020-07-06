@@ -80,7 +80,7 @@ public class Size implements Comparable<Size>, Serializable {
   }
 
   public static List<Size> sizeStringToList(final String sizes) {
-    final List<Size> sizeList = new ArrayList<Size>();
+    final List<Size> sizeList = new ArrayList<>();
     if (sizes != null) {
       final String[] pairs = sizes.split(",");
       for (final String pair : pairs) {
@@ -94,17 +94,17 @@ public class Size implements Comparable<Size>, Serializable {
   }
 
   public static String sizeListToString(final List<Size> sizes) {
-    String sizesString = "";
+    StringBuilder sizesString = new StringBuilder();
     if (sizes != null && sizes.size() > 0) {
-      sizesString = sizes.get(0).toString();
+      sizesString = new StringBuilder(sizes.get(0).toString());
       for (int i = 1; i < sizes.size(); i++) {
-        sizesString += "," + sizes.get(i).toString();
+        sizesString.append(",").append(sizes.get(i).toString());
       }
     }
-    return sizesString;
+    return sizesString.toString();
   }
 
-  public static final String dimensionsAsString(final int width, final int height) {
+  public static String dimensionsAsString(final int width, final int height) {
     return width + "x" + height;
   }
 

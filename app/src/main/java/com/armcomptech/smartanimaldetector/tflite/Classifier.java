@@ -15,6 +15,7 @@ limitations under the License.
 
 package com.armcomptech.smartanimaldetector.tflite;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.RectF;
 
@@ -81,6 +82,7 @@ public interface Classifier {
       this.location = location;
     }
 
+    @SuppressLint("DefaultLocale")
     @Override
     public String toString() {
       String resultString = "";

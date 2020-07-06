@@ -17,6 +17,7 @@
 package com.armcomptech.smartanimaldetector;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
@@ -25,7 +26,6 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
 import android.hardware.Camera;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
@@ -64,23 +64,24 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
-
 import com.armcomptech.smartanimaldetector.env.ImageUtils;
 import com.armcomptech.smartanimaldetector.env.Logger;
 import com.armcomptech.smartanimaldetector.tflite.Classifier;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Objects;
 
+@SuppressWarnings("deprecation")
 public abstract class CameraActivity extends AppCompatActivity
         implements OnImageAvailableListener,
         Camera.PreviewCallback,
@@ -103,37 +104,29 @@ public abstract class CameraActivity extends AppCompatActivity
   private int yRowStride;
   private Runnable postInferenceCallback;
   private Runnable imageConverter;
-  private LinearLayout bottomSheetLayout;
   private LinearLayout gestureLayout;
   private BottomSheetBehavior<LinearLayout> sheetBehavior;
   protected TextView frameValueTextView, cropValueTextView, inferenceTimeTextView;
   protected ImageView bottomSheetArrowImageView;
-  private ImageView plusImageView, minusImageView;
   private SwitchCompat apiSwitchCompat;
   private TextView threadsTextView;
 
   private TextView mCaptureCount;
 
-  private boolean generalBoxSwitch;
-  private boolean defaultGeneralBoxCheckBox;
-  private int generalBoxSeekBar;
   private boolean generalSwitchTakePhoto;
   private boolean birdSwitchTakePhoto;
-  private boolean defaultBirdTakePhotoCheckBox;
   private int birdSeekBar;
   private boolean squirrelSwitchTakePhoto;
-  private boolean defaultSquirrelTakePhotoCheckBox;
   private int squirrelSeekBar;
   private FrameLayout frameLayout;
-  private Toolbar toolbar;
 
   private boolean greenLightToTakePhoto = true;
 
-  private boolean debug = false;
   Button mBtnCapture;
   CameraConnectionFragment camera2Fragment;
   Fragment fragment;
 
+  @SuppressLint("StaticFieldLeak")
   private static CameraActivity instance;
 
   public CameraActivity() {
@@ -144,6 +137,7 @@ public abstract class CameraActivity extends AppCompatActivity
     return instance;
   }
 
+  @RequiresApi(api = Build.VERSION_CODES.M)
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
     LOGGER.d("onCreate " + this);
@@ -155,8 +149,8 @@ public abstract class CameraActivity extends AppCompatActivity
     }
 
     setContentView(R.layout.tfe_od_activity_camera);
-    toolbar = findViewById(R.id.toolbar);
-    toolbar.getOverflowIcon().setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_ATOP);
+    Toolbar toolbar = findViewById(R.id.toolbar);
+    Objects.requireNonNull(toolbar.getOverflowIcon()).setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_ATOP);
     setSupportActionBar(toolbar);
     Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
 
@@ -173,10 +167,10 @@ public abstract class CameraActivity extends AppCompatActivity
     threadsTextView.setText(String.valueOf(numThreads));
     setNumThreads(numThreads);
 
-    plusImageView = findViewById(R.id.plus);
-    minusImageView = findViewById(R.id.minus);
+    ImageView plusImageView = findViewById(R.id.plus);
+    ImageView minusImageView = findViewById(R.id.minus);
     apiSwitchCompat = findViewById(R.id.api_info_switch);
-    bottomSheetLayout = findViewById(R.id.bottom_sheet_layout);
+    LinearLayout bottomSheetLayout = findViewById(R.id.bottom_sheet_layout);
     gestureLayout = findViewById(R.id.gesture_layout);
     sheetBehavior = BottomSheetBehavior.from(bottomSheetLayout);
     bottomSheetArrowImageView = findViewById(R.id.bottom_sheet_arrow);
@@ -187,11 +181,7 @@ public abstract class CameraActivity extends AppCompatActivity
             new ViewTreeObserver.OnGlobalLayoutListener() {
               @Override
               public void onGlobalLayout() {
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-                  gestureLayout.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                } else {
-                  gestureLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                }
+                gestureLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 //                int width = bottomSheetLayout.getMeasuredWidth();
                 int height = gestureLayout.getMeasuredHeight();
 
@@ -207,13 +197,11 @@ public abstract class CameraActivity extends AppCompatActivity
                 switch (newState) {
                   case BottomSheetBehavior.STATE_HIDDEN:
                     break;
-                  case BottomSheetBehavior.STATE_EXPANDED:
-                  {
+                  case BottomSheetBehavior.STATE_EXPANDED: {
                     bottomSheetArrowImageView.setImageResource(R.drawable.icn_chevron_down);
                   }
                   break;
-                  case BottomSheetBehavior.STATE_COLLAPSED:
-                  {
+                  case BottomSheetBehavior.STATE_COLLAPSED: {
                     bottomSheetArrowImageView.setImageResource(R.drawable.icn_chevron_up);
                   }
                   break;
@@ -221,6 +209,8 @@ public abstract class CameraActivity extends AppCompatActivity
                     break;
                   case BottomSheetBehavior.STATE_SETTLING:
                     bottomSheetArrowImageView.setImageResource(R.drawable.icn_chevron_up);
+                    break;
+                  case BottomSheetBehavior.STATE_HALF_EXPANDED:
                     break;
                 }
               }
@@ -243,8 +233,9 @@ public abstract class CameraActivity extends AppCompatActivity
   public void checkForSettings() {
     SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-    generalBoxSwitch = sharedPreferences.getBoolean("generalBoxSwitch", true);
-    defaultGeneralBoxCheckBox = sharedPreferences.getBoolean("defaultGeneralBoxCheckBox", true);
+    boolean generalBoxSwitch = sharedPreferences.getBoolean("generalBoxSwitch", true);
+    boolean defaultGeneralBoxCheckBox = sharedPreferences.getBoolean("defaultGeneralBoxCheckBox", true);
+    int generalBoxSeekBar;
     if (defaultGeneralBoxCheckBox) {
       generalBoxSeekBar = SettingsActivity.getDefaultConfidenceLevel(); //default confidence level
     } else {
@@ -254,7 +245,7 @@ public abstract class CameraActivity extends AppCompatActivity
     generalSwitchTakePhoto = sharedPreferences.getBoolean("generalSwitchTakePhoto", false);
 
     birdSwitchTakePhoto = sharedPreferences.getBoolean("birdSwitchTakePhoto", false);
-    defaultBirdTakePhotoCheckBox = sharedPreferences.getBoolean("defaultBirdTakePhotoCheckBox", true);
+    boolean defaultBirdTakePhotoCheckBox = sharedPreferences.getBoolean("defaultBirdTakePhotoCheckBox", true);
     if (defaultBirdTakePhotoCheckBox) {
       birdSeekBar = SettingsActivity.getDefaultConfidenceLevel(); //default confidence level
     } else {
@@ -262,7 +253,7 @@ public abstract class CameraActivity extends AppCompatActivity
     }
 
     squirrelSwitchTakePhoto = sharedPreferences.getBoolean("squirrelSwitchTakePhoto", false);
-    defaultSquirrelTakePhotoCheckBox = sharedPreferences.getBoolean("defaultSquirrelTakePhotoCheckBox", true);
+    boolean defaultSquirrelTakePhotoCheckBox = sharedPreferences.getBoolean("defaultSquirrelTakePhotoCheckBox", true);
     if (defaultSquirrelTakePhotoCheckBox) {
       squirrelSeekBar = SettingsActivity.getDefaultConfidenceLevel(); //default confidence level
     } else {
@@ -277,13 +268,15 @@ public abstract class CameraActivity extends AppCompatActivity
 
       WindowManager wm = (WindowManager) CameraActivity.getContext().getSystemService(Context.WINDOW_SERVICE);
       getScreenOrientation();
+      assert wm != null;
       Display display = wm.getDefaultDisplay();
       int width = display.getWidth();
       int height = display.getHeight();
 
       if (width > 1000) {
         params.setMargins(0, 0, 0,0);
-      } else if (height/width < 0.70) {
+      } else //noinspection IntegerDivisionInFloatingPointContext
+        if (height/width < 0.70) {
         params.setMargins(150, 0, 150,0);
       } else {
         params.setMargins(0, 0, 0,0);
@@ -329,23 +322,16 @@ public abstract class CameraActivity extends AppCompatActivity
 
     isProcessingFrame = true;
     yuvBytes[0] = bytes;
+    //noinspection SuspiciousNameCombination
     yRowStride = previewWidth;
 
     imageConverter =
-            new Runnable() {
-              @Override
-              public void run() {
-                ImageUtils.convertYUV420SPToARGB8888(bytes, previewWidth, previewHeight, rgbBytes);
-              }
-            };
+            () -> ImageUtils.convertYUV420SPToARGB8888(bytes, previewWidth, previewHeight, rgbBytes);
 
     postInferenceCallback =
-            new Runnable() {
-              @Override
-              public void run() {
-                camera.addCallbackBuffer(bytes);
-                isProcessingFrame = false;
-              }
+            () -> {
+              camera.addCallbackBuffer(bytes);
+              isProcessingFrame = false;
             };
     processImage();
   }
@@ -380,29 +366,21 @@ public abstract class CameraActivity extends AppCompatActivity
       final int uvPixelStride = planes[1].getPixelStride();
 
       imageConverter =
-              new Runnable() {
-                @Override
-                public void run() {
-                  ImageUtils.convertYUV420ToARGB8888(
-                          yuvBytes[0],
-                          yuvBytes[1],
-                          yuvBytes[2],
-                          previewWidth,
-                          previewHeight,
-                          yRowStride,
-                          uvRowStride,
-                          uvPixelStride,
-                          rgbBytes);
-                }
-              };
+              () -> ImageUtils.convertYUV420ToARGB8888(
+                      yuvBytes[0],
+                      yuvBytes[1],
+                      yuvBytes[2],
+                      previewWidth,
+                      previewHeight,
+                      yRowStride,
+                      uvRowStride,
+                      uvPixelStride,
+                      rgbBytes);
 
       postInferenceCallback =
-              new Runnable() {
-                @Override
-                public void run() {
-                  image.close();
-                  isProcessingFrame = false;
-                }
+              () -> {
+                image.close();
+                isProcessingFrame = false;
               };
 
       processImage();
@@ -470,6 +448,7 @@ public abstract class CameraActivity extends AppCompatActivity
     }
   }
 
+  @RequiresApi(api = Build.VERSION_CODES.M)
   @Override
   public void onRequestPermissionsResult(
           final int requestCode, final String[] permissions, final int[] grantResults) {
@@ -524,18 +503,20 @@ public abstract class CameraActivity extends AppCompatActivity
 
   // Returns true if the device supports the required hardware level, or better.
   private boolean isHardwareLevelSupported(
-          CameraCharacteristics characteristics, int requiredLevel) {
-    int deviceLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
+          CameraCharacteristics characteristics) {
+    @SuppressWarnings("ConstantConditions") int deviceLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
     if (deviceLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY) {
-      return requiredLevel == deviceLevel;
+      return false;
     }
     // deviceLevel is not LEGACY, can use numerical sort
-    return requiredLevel <= deviceLevel;
+    return android.hardware.camera2.CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_FULL <= deviceLevel;
   }
 
+  @RequiresApi(api = Build.VERSION_CODES.M)
   private String chooseCamera() {
     final CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
     try {
+      assert manager != null;
       for (final String cameraId : manager.getCameraIdList()) {
         final CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
 
@@ -555,10 +536,11 @@ public abstract class CameraActivity extends AppCompatActivity
         // Fallback to camera1 API for internal cameras that don't have full support.
         // This should help with legacy situations where using the camera2 API causes
         // distorted or otherwise broken previews.
+        //noinspection ConstantConditions
         useCamera2API =
                 (facing == CameraCharacteristics.LENS_FACING_EXTERNAL)
                         || isHardwareLevelSupported(
-                        characteristics, CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL);
+                        characteristics);
         LOGGER.i("Camera API lv2?: %s", useCamera2API);
         return cameraId;
       }
@@ -569,19 +551,17 @@ public abstract class CameraActivity extends AppCompatActivity
     return null;
   }
 
+  @RequiresApi(api = Build.VERSION_CODES.M)
   protected void setFragment() {
     String cameraId = chooseCamera();
 
     if (useCamera2API) {
       camera2Fragment =
               CameraConnectionFragment.newInstance(
-                      new CameraConnectionFragment.ConnectionCallback() {
-                        @Override
-                        public void onPreviewSizeChosen(final Size size, final int rotation) {
-                          previewHeight = size.getHeight();
-                          previewWidth = size.getWidth();
-                          CameraActivity.this.onPreviewSizeChosen(size, rotation);
-                        }
+                      (size, rotation) -> {
+                        previewHeight = size.getHeight();
+                        previewWidth = size.getWidth();
+                        CameraActivity.this.onPreviewSizeChosen(size, rotation);
                       },
                       this,
                       getLayoutId(),
@@ -625,9 +605,10 @@ public abstract class CameraActivity extends AppCompatActivity
   }
 
   public boolean isDebug() {
-    return debug;
+    return false;
   }
 
+  @SuppressLint("SetTextI18n")
   public void refreshCaptureCount() {
     File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "Smart Wildlife Capture");
 
@@ -698,9 +679,13 @@ public abstract class CameraActivity extends AppCompatActivity
         return 90;
       default:
         return 0;
+      case Surface.ROTATION_0:
+        break;
     }
+    return 0;
   }
 
+  @SuppressLint("SetTextI18n")
   @Override
   public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
     setUseNNAPI(isChecked);

@@ -16,6 +16,7 @@
 
 package com.armcomptech.smartanimaldetector;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -26,8 +27,8 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.graphics.Camera;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.RectF;
@@ -45,6 +46,7 @@ import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
 import android.media.ImageReader.OnImageAvailableListener;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -62,6 +64,8 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.core.app.ActivityCompat;
 
 import com.armcomptech.smartanimaldetector.customview.AutoFitTextureView;
 import com.armcomptech.smartanimaldetector.env.Logger;
@@ -82,6 +86,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 /**
  * Camera Connection Fragment that captures images from camera.
@@ -141,6 +147,9 @@ public class CameraConnectionFragment extends Fragment {
    * Max preview height that is guaranteed by Camera2 API
    */
   private static final int MAX_PREVIEW_HEIGHT = 1080;
+  private static final String PERMISSION_CAMERA = Manifest.permission.CAMERA;
+  private static final String WRITE_EXTERNAL_STORAGE = Manifest.permission.WRITE_EXTERNAL_STORAGE;
+  private static final int PERMISSIONS_REQUEST = 1;
 
   /**
    * This is the output file for our picture.
@@ -166,21 +175,21 @@ public class CameraConnectionFragment extends Fragment {
 
     @Override
     public void onImageAvailable(ImageReader reader) {
-      File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "Smart Wildlife Capture");
+      @SuppressWarnings("deprecation") File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "Smart Wildlife Capture");
       // This location works best if you want the created images to be shared
       // between applications and persist after your app has been uninstalled.
 
       // Create the storage directory if it does not exist
-      if (! mediaStorageDir.exists()){
-        if (! mediaStorageDir.mkdirs()){
+      if (!mediaStorageDir.exists()) {
+        if (!mediaStorageDir.mkdirs()) {
           Log.d("MyCameraApp", "failed to create directory");
         }
       }
 
-      String timeStamp  = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+      @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
 
       mFile = new File(mediaStorageDir + File.separator +
-              "IMG_"+ timeStamp + ".jpg");
+              "IMG_" + timeStamp + ".jpg");
 
       OutputStream fOut = null;
       File file = mFile;
@@ -192,6 +201,7 @@ public class CameraConnectionFragment extends Fragment {
       }
 
       try {
+        assert fOut != null;
         fOut.flush();
         fOut.close();
       } catch (IOException e) {
@@ -201,7 +211,7 @@ public class CameraConnectionFragment extends Fragment {
       ContentValues values = new ContentValues();
       values.put(MediaStore.Images.Media.TITLE, "Title Here");
       values.put(MediaStore.Images.Media.DESCRIPTION, "Description Here");
-      values.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis ());
+      values.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis());
       values.put(MediaStore.Images.ImageColumns.BUCKET_ID, file.toString().toLowerCase(Locale.US).hashCode());
       values.put(MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME, file.getName().toLowerCase(Locale.US));
       values.put("_data", file.getAbsolutePath());
@@ -317,6 +327,7 @@ public class CameraConnectionFragment extends Fragment {
    */
   private final TextureView.SurfaceTextureListener surfaceTextureListener =
           new TextureView.SurfaceTextureListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onSurfaceTextureAvailable(
                     final SurfaceTexture texture, final int width, final int height) {
@@ -335,7 +346,8 @@ public class CameraConnectionFragment extends Fragment {
             }
 
             @Override
-            public void onSurfaceTextureUpdated(final SurfaceTexture texture) {}
+            public void onSurfaceTextureUpdated(final SurfaceTexture texture) {
+            }
           };
   /** An {@link ImageReader} that handles preview frame capture. */
   private ImageReader previewReader;
@@ -381,6 +393,7 @@ public class CameraConnectionFragment extends Fragment {
             }
           };
 
+  @SuppressWarnings("deprecation")
   @SuppressLint("ValidFragment")
   private CameraConnectionFragment(
           final ConnectionCallback connectionCallback,
@@ -408,8 +421,8 @@ public class CameraConnectionFragment extends Fragment {
 
     // Collect the supported resolutions that are at least as big as the preview Surface
     boolean exactSizeFound = false;
-    final List<Size> bigEnough = new ArrayList<Size>();
-    final List<Size> tooSmall = new ArrayList<Size>();
+    final List<Size> bigEnough = new ArrayList<>();
+    final List<Size> tooSmall = new ArrayList<>();
     for (final Size option : choices) {
       if (option.equals(desiredSize)) {
         // Set the size but don't return yet so that remaining sizes will still be logged.
@@ -479,13 +492,14 @@ public class CameraConnectionFragment extends Fragment {
   public void onActivityCreated(final Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
 
-    File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "Smart Wildlife Capture");
-    String timeStamp  = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+    @SuppressWarnings("deprecation") File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "Smart Wildlife Capture");
+    @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
 
     mFile = new File(mediaStorageDir + File.separator +
-            "IMG_"+ timeStamp + ".jpg");
+            "IMG_" + timeStamp + ".jpg");
   }
 
+  @RequiresApi(api = Build.VERSION_CODES.M)
   @Override
   public void onResume() {
     super.onResume();
@@ -518,14 +532,15 @@ public class CameraConnectionFragment extends Fragment {
     final Activity activity = getActivity();
     final CameraManager manager = (CameraManager) activity.getSystemService(Context.CAMERA_SERVICE);
     try {
+      assert manager != null;
       final CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
 
       final StreamConfigurationMap map =
               characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
 
 
-
       // For still image captures, we use the largest available size.
+      assert map != null;
       Size largest = Collections.max(
               Arrays.asList(map.getOutputSizes(ImageFormat.JPEG)),
               new CompareSizesByArea());
@@ -533,7 +548,6 @@ public class CameraConnectionFragment extends Fragment {
               ImageFormat.JPEG, /*maxImages*/10);
       mImageReader.setOnImageAvailableListener(
               mOnImageAvailableListener, backgroundHandler);
-
 
 
       sensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
@@ -573,6 +587,7 @@ public class CameraConnectionFragment extends Fragment {
   }
 
   /** Opens the camera specified by {@link CameraConnectionFragment#cameraId}. */
+  @RequiresApi(api = Build.VERSION_CODES.M)
   private void openCamera(final int width, final int height) {
 
     setUpCameraOutputs();
@@ -583,6 +598,11 @@ public class CameraConnectionFragment extends Fragment {
       if (!cameraOpenCloseLock.tryAcquire(2500, TimeUnit.MILLISECONDS)) {
         throw new RuntimeException("Time out waiting to lock camera opening.");
       }
+      if (ActivityCompat.checkSelfPermission(CameraActivity.getContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+        requestPermissions(new String[] {PERMISSION_CAMERA, WRITE_EXTERNAL_STORAGE}, PERMISSIONS_REQUEST);
+        return;
+      }
+      assert manager != null;
       manager.openCamera(cameraId, stateCallback, backgroundHandler);
     } catch (final CameraAccessException e) {
       LOGGER.e(e, "Exception!");
@@ -942,6 +962,7 @@ public class CameraConnectionFragment extends Fragment {
   }
 
   /** Shows an error message dialog. */
+  @SuppressWarnings("deprecation")
   public static class ErrorDialog extends DialogFragment {
     private static final String ARG_MESSAGE = "message";
 
@@ -960,12 +981,7 @@ public class CameraConnectionFragment extends Fragment {
               .setMessage(getArguments().getString(ARG_MESSAGE))
               .setPositiveButton(
                       android.R.string.ok,
-                      new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(final DialogInterface dialogInterface, final int i) {
-                          activity.finish();
-                        }
-                      })
+                      (dialogInterface, i) -> activity.finish())
               .create();
     }
   }

@@ -16,19 +16,14 @@ package com.armcomptech.smartanimaldetector;
  * limitations under the License.
  */
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Fragment;
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
-import android.hardware.Sensor;
-import android.hardware.SensorManager;
-import android.hardware.camera2.CameraAccessException;
-import android.hardware.camera2.CameraCharacteristics;
-import android.hardware.camera2.CameraManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -37,7 +32,6 @@ import android.os.HandlerThread;
 import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Surface;
 import android.view.TextureView;
@@ -58,8 +52,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import static android.content.Intent.getIntent;
-
+@SuppressWarnings("deprecation")
+@SuppressLint("ValidFragment")
 public class LegacyCameraConnectionFragment extends Fragment {
   private static final String TAG = "LegacyCamera";
   private static final Logger LOGGER = new Logger();
@@ -87,7 +81,7 @@ public class LegacyCameraConnectionFragment extends Fragment {
 
   @RequiresApi(api = Build.VERSION_CODES.M)
   protected int getScreenOrientation() {
-    switch (((Activity)getContext()).getWindowManager().getDefaultDisplay().getRotation()) {
+    switch (((Activity) getContext()).getWindowManager().getDefaultDisplay().getRotation()) {
       case Surface.ROTATION_270:
         return 270;
       case Surface.ROTATION_180:
@@ -96,7 +90,10 @@ public class LegacyCameraConnectionFragment extends Fragment {
         return 90;
       default:
         return 0;
+      case Surface.ROTATION_0:
+        break;
     }
+    return 0;
   }
 
   private final TextureView.SurfaceTextureListener surfaceTextureListener =
@@ -128,8 +125,7 @@ public class LegacyCameraConnectionFragment extends Fragment {
 
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-              int orientation = 0; //default
-              orientation = getScreenOrientation();
+              int orientation = getScreenOrientation();
 
               if (orientation == 0) { //top up
                 camera.setDisplayOrientation(90);
@@ -153,6 +149,7 @@ public class LegacyCameraConnectionFragment extends Fragment {
 
           camera.setPreviewCallbackWithBuffer(imageListener);
           Camera.Size s = camera.getParameters().getPreviewSize();
+          //noinspection SuspiciousNameCombination
           camera.addCallbackBuffer(new byte[ImageUtils.getYUVByteSize(s.height, s.width)]);
 
           // We fit the aspect ratio of TextureView to the size of preview we picked.
@@ -160,6 +157,7 @@ public class LegacyCameraConnectionFragment extends Fragment {
           if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
             textureView.setAspectRatio(s.width, s.height);
           } else {
+            //noinspection SuspiciousNameCombination
             textureView.setAspectRatio(s.height, s.width);
           }
 //          textureView.setAspectRatio(s.height, s.width);
@@ -284,7 +282,7 @@ public class LegacyCameraConnectionFragment extends Fragment {
       }
     }
 
-    String timeStamp  = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+    @SuppressLint("SimpleDateFormat") String timeStamp  = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
 
     File pictureFile = new File(mediaStorageDir + File.separator +
             "IMG_"+ timeStamp + ".jpg");

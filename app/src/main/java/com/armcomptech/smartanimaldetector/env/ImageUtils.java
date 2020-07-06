@@ -62,7 +62,7 @@ public class ImageUtils {
    * @param filename The location to save the bitmap to.
    */
   public static void saveBitmap(final Bitmap bitmap, final String filename) {
-    final String root =
+    @SuppressWarnings("deprecation") final String root =
         Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "Smart Wildlife Capture";
     LOGGER.i("Saving %dx%d bitmap to %s.", bitmap.getWidth(), bitmap.getHeight(), root);
     final File myDir = new File(root);
@@ -71,9 +71,9 @@ public class ImageUtils {
       LOGGER.i("Make dir failed");
     }
 
-    final String fname = filename;
-    final File file = new File(myDir, fname);
+    final File file = new File(myDir, filename);
     if (file.exists()) {
+      //noinspection ResultOfMethodCallIgnored
       file.delete();
     }
     try {
@@ -107,7 +107,7 @@ public class ImageUtils {
 
   private static int YUV2RGB(int y, int u, int v) {
     // Adjust and check YUV values
-    y = (y - 16) < 0 ? 0 : (y - 16);
+    y = Math.max((y - 16), 0);
     u -= 128;
     v -= 128;
 
@@ -122,9 +122,9 @@ public class ImageUtils {
     int b = (y1192 + 2066 * u);
 
     // Clipping RGB values to be inside boundaries [ 0 , kMaxChannelValue ]
-    r = r > kMaxChannelValue ? kMaxChannelValue : (r < 0 ? 0 : r);
-    g = g > kMaxChannelValue ? kMaxChannelValue : (g < 0 ? 0 : g);
-    b = b > kMaxChannelValue ? kMaxChannelValue : (b < 0 ? 0 : b);
+    r = r > kMaxChannelValue ? kMaxChannelValue : (Math.max(r, 0));
+    g = g > kMaxChannelValue ? kMaxChannelValue : (Math.max(g, 0));
+    b = b > kMaxChannelValue ? kMaxChannelValue : (Math.max(b, 0));
 
     return 0xff000000 | ((r << 6) & 0xff0000) | ((g >> 2) & 0xff00) | ((b >> 10) & 0xff);
   }

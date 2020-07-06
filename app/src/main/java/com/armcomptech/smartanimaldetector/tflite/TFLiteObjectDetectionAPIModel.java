@@ -62,7 +62,7 @@ public class TFLiteObjectDetectionAPIModel implements Classifier {
   // Config values.
   private int inputSize;
   // Pre-allocated buffers.
-  private Vector<String> labels = new Vector<String>();
+  private Vector<String> labels = new Vector<>();
   private int[] intValues;
   // outputLocations: array of shape [Batchsize, NUM_DETECTIONS,4]
   // contains the location of detected boxes
@@ -137,8 +137,8 @@ public class TFLiteObjectDetectionAPIModel implements Classifier {
     } else {
       numBytesPerChannel = 4; // Floating point
     }
-    int test = 1 * d.inputSize * d.inputSize * 3 * numBytesPerChannel;
-    d.imgData = ByteBuffer.allocateDirect(1 * d.inputSize * d.inputSize * 3 * numBytesPerChannel);
+    int test = d.inputSize * d.inputSize * 3 * numBytesPerChannel;
+    d.imgData = ByteBuffer.allocateDirect(d.inputSize * d.inputSize * 3 * numBytesPerChannel);
     d.imgData.order(ByteOrder.nativeOrder());
     d.intValues = new int[d.inputSize * d.inputSize];
 
@@ -242,11 +242,13 @@ public class TFLiteObjectDetectionAPIModel implements Classifier {
   public void close() {}
 
   public void setNumThreads(int num_threads) {
-    if (tfLite != null) tfLite.setNumThreads(num_threads);
+    if (tfLite != null) //noinspection deprecation
+      tfLite.setNumThreads(num_threads);
   }
 
   @Override
   public void setUseNNAPI(boolean isChecked) {
-    if (tfLite != null) tfLite.setUseNNAPI(isChecked);
+    if (tfLite != null) //noinspection deprecation
+      tfLite.setUseNNAPI(isChecked);
   }
 }
