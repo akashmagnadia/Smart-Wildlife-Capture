@@ -45,6 +45,7 @@ import android.os.Trace;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ImageSpan;
+import android.util.Log;
 import android.util.Size;
 import android.view.Display;
 import android.view.Menu;
@@ -74,7 +75,9 @@ import androidx.preference.PreferenceManager;
 import com.armcomptech.smartanimaldetector.env.ImageUtils;
 import com.armcomptech.smartanimaldetector.env.Logger;
 import com.armcomptech.smartanimaldetector.tflite.Classifier;
+import com.google.android.gms.appinvite.AppInviteInvitation;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.io.File;
 import java.nio.ByteBuffer;
@@ -93,6 +96,8 @@ public abstract class CameraActivity extends AppCompatActivity
 
   private static final String PERMISSION_CAMERA = Manifest.permission.CAMERA;
   private static final String WRITE_EXTERNAL_STORAGE = Manifest.permission.WRITE_EXTERNAL_STORAGE;
+  private static final int REQUEST_INVITE = 100;
+  private static final String TAG = "CameraActivity";
   protected int previewWidth = 0;
   protected int previewHeight = 0;
   private Handler handler;
@@ -121,6 +126,7 @@ public abstract class CameraActivity extends AppCompatActivity
   private FrameLayout frameLayout;
 
   private boolean greenLightToTakePhoto = true;
+  private FirebaseAnalytics mFirebaseAnalytics;
 
   Button mBtnCapture;
   CameraConnectionFragment camera2Fragment;
@@ -140,6 +146,16 @@ public abstract class CameraActivity extends AppCompatActivity
   @RequiresApi(api = Build.VERSION_CODES.M)
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
+
+    // Obtain the FirebaseAnalytics instance.
+    mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+
+    //for logging event created bundles
+    Bundle openedApp = new Bundle();
+    openedApp.putString(FirebaseAnalytics.Param.ITEM_ID, "openApp");
+    openedApp.putString(FirebaseAnalytics.Param.ITEM_NAME, "Opened Application");
+    mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.APP_OPEN, openedApp);
+
     LOGGER.d("onCreate " + this);
     super.onCreate(null);
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -228,6 +244,25 @@ public abstract class CameraActivity extends AppCompatActivity
 
     plusImageView.setOnClickListener(this);
     minusImageView.setOnClickListener(this);
+  }
+
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    Log.d(TAG, "onActivityResult: requestCode=" + requestCode + ", resultCode=" + resultCode);
+
+    if (requestCode == REQUEST_INVITE) {
+      if (resultCode == RESULT_OK) {
+        // Get the invitation IDs of all sent messages
+        String[] ids = AppInviteInvitation.getInvitationIds(resultCode, data);
+        for (String id : ids) {
+          Log.d(TAG, "onActivityResult: sent invitation " + id);
+        }
+      } else {
+        // Sending failed or it was canceled, show failure message to the user
+        // ...
+      }
+    }
   }
 
   public void checkForSettings() {
@@ -573,6 +608,7 @@ public abstract class CameraActivity extends AppCompatActivity
       mBtnCapture.setOnClickListener(e ->
       {
         //when button capture is clicked
+        logPictureTaken();
         camera2Fragment.takePicture();
         refreshCaptureCount();
       });
@@ -583,12 +619,20 @@ public abstract class CameraActivity extends AppCompatActivity
       mBtnCapture.setOnClickListener(e ->
       {
         //when button capture is clicked
+        logPictureTaken();
         ((LegacyCameraConnectionFragment) fragment).takePicture();
         refreshCaptureCount();
       });
     }
 
     getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
+  }
+
+  private void logPictureTaken() {
+    Bundle pictureTaken = new Bundle();
+    pictureTaken.putString(FirebaseAnalytics.Param.ITEM_ID, "takePic");
+    pictureTaken.putString(FirebaseAnalytics.Param.ITEM_NAME, "Picture Taken");
+    mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, pictureTaken);
   }
 
   protected void fillBytes(final Plane[] planes, final byte[][] yuvBytes) {
@@ -640,8 +684,10 @@ public abstract class CameraActivity extends AppCompatActivity
 
           // if green light for squirrel and confidence level is surpassed
           if (camera2Fragment != null) {
+            logPictureTaken();
             camera2Fragment.takePicture();
           } else {
+            logPictureTaken();
             ((LegacyCameraConnectionFragment) fragment).takePicture();
           }
 
@@ -654,8 +700,10 @@ public abstract class CameraActivity extends AppCompatActivity
 
           // if green light for squirrel and confidence level is surpassed
           if (camera2Fragment != null) {
+            logPictureTaken();
             camera2Fragment.takePicture();
           } else {
+            logPictureTaken();
             ((LegacyCameraConnectionFragment) fragment).takePicture();
           }
         }
@@ -743,6 +791,7 @@ public abstract class CameraActivity extends AppCompatActivity
 
     menu.add(0, R.id.settings, 0, menuIconWithText(getResources().getDrawable(R.drawable.ic_baseline_settings_24_black), "Settings"));
     menu.add(0, R.id.privacy_policy, 1, menuIconWithText(getResources().getDrawable(R.drawable.ic_baseline_lock_24_black), "Privacy Policy"));
+    menu.add(0, R.id.share, 2, menuIconWithText(getResources().getDrawable(R.drawable.ic_baseline_share_24_black), "Share"));
 
     return true;
   }
@@ -778,6 +827,20 @@ public abstract class CameraActivity extends AppCompatActivity
         Intent myWebLink = new Intent(android.content.Intent.ACTION_VIEW);
         myWebLink.setData(Uri.parse("https://smartanimaldetector.blogspot.com/2020/06/smart-animal-detector-privacy-policy.html"));
         startActivity(myWebLink);
+        break;
+
+      case R.id.share:
+        Intent intent = new AppInviteInvitation.IntentBuilder(getString(R.string.invitation_title))
+                .setMessage(getString(R.string.invitation_message))
+                .setDeepLink(Uri.parse(getString(R.string.invitation_deep_link)))
+                .setCallToActionText(getString(R.string.invitation_cta))
+                .build();
+        startActivityForResult(intent, REQUEST_INVITE);
+
+        Bundle shareApp = new Bundle();
+        shareApp.putString(FirebaseAnalytics.Param.ITEM_ID, "share");
+        shareApp.putString(FirebaseAnalytics.Param.ITEM_NAME, "Share Application");
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, shareApp);
         break;
 
       default:

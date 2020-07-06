@@ -69,6 +69,7 @@ import androidx.core.app.ActivityCompat;
 
 import com.armcomptech.smartanimaldetector.customview.AutoFitTextureView;
 import com.armcomptech.smartanimaldetector.env.Logger;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.io.File;
 import java.io.FileNotFoundException;

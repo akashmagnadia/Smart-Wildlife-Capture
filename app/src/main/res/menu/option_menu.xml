@@ -16,4 +16,10 @@
         app:showAsAction="never"
         android:visible="false" />
 
+    <item
+        android:id="@+id/share"
+        android:title="@string/share"
+        app:showAsAction="never"
+        android:visible="false" />
+
 </menu>
