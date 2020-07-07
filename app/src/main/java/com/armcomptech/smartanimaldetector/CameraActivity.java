@@ -77,6 +77,8 @@ import com.armcomptech.smartanimaldetector.env.Logger;
 import com.armcomptech.smartanimaldetector.tflite.Classifier;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.appindexing.Action;
+import com.google.firebase.appindexing.FirebaseUserActions;
 import com.google.firebase.dynamiclinks.DynamicLink;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 
@@ -171,7 +173,6 @@ public abstract class CameraActivity extends AppCompatActivity
             })
             .addOnFailureListener(this, e -> Log.w(TAG, "getDynamicLink:onFailure", e));
 
-    refreshCaptureCount();
     LOGGER.d("onCreate " + this);
     super.onCreate(null);
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -207,6 +208,7 @@ public abstract class CameraActivity extends AppCompatActivity
     sheetBehavior = BottomSheetBehavior.from(bottomSheetLayout);
     bottomSheetArrowImageView = findViewById(R.id.bottom_sheet_arrow);
     mCaptureCount = findViewById(R.id.captureCount);
+    refreshCaptureCount();
 
     ViewTreeObserver vto = gestureLayout.getViewTreeObserver();
     vto.addOnGlobalLayoutListener(
@@ -248,7 +250,8 @@ public abstract class CameraActivity extends AppCompatActivity
               }
 
               @Override
-              public void onSlide(@NonNull View bottomSheet, float slideOffset) {}
+              public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+              }
             });
 
     frameValueTextView = findViewById(R.id.frame_info);
@@ -260,6 +263,11 @@ public abstract class CameraActivity extends AppCompatActivity
 
     plusImageView.setOnClickListener(this);
     minusImageView.setOnClickListener(this);
+
+    // ATTENTION: This was auto-generated to handle app links.
+    Intent appLinkIntent = getIntent();
+    String appLinkAction = appLinkIntent.getAction();
+    Uri appLinkData = appLinkIntent.getData();
   }
 
   private Uri generateContentLink() {
@@ -453,7 +461,14 @@ public abstract class CameraActivity extends AppCompatActivity
     greenLightToTakePhoto = true;
     LOGGER.d("onStart " + this);
     checkForSettings();
+
+    FirebaseUserActions.getInstance().start(getRecipeViewAction());
     super.onStart();
+  }
+
+  public Action getRecipeViewAction() {
+    // This is just to make some things compile.
+    return null;
   }
 
   @Override
@@ -489,6 +504,8 @@ public abstract class CameraActivity extends AppCompatActivity
   public synchronized void onStop() {
     greenLightToTakePhoto = false;
     LOGGER.d("onStop " + this);
+
+    FirebaseUserActions.getInstance().end(getRecipeViewAction());
     super.onStop();
   }
 
@@ -688,20 +705,24 @@ public abstract class CameraActivity extends AppCompatActivity
     }
 
     int finalCount = count;
-    runOnUiThread(() -> mCaptureCount.setText("Captures: " + finalCount));
+    runOnUiThread(() -> {
+      if (mCaptureCount != null) {
+        mCaptureCount.setText("Captures: " + finalCount);
+      }
+    });
   }
 
   //TODO: change the objects and models
   void checkforObject(List<Classifier.Recognition> results) {
     if (generalSwitchTakePhoto) { //if green light to take photos
+      //show capture count to user
+      refreshCaptureCount();
+      
       for (final Classifier.Recognition result : results) {
 
         if(result.getTitle().equals("Squirrel")
                 && (result.getConfidence() >= (float)(squirrelSeekBar/100))
-                && squirrelSwitchTakePhoto && generalSwitchTakePhoto && greenLightToTakePhoto) {
-
-          //show capture count to user
-          refreshCaptureCount();
+                && squirrelSwitchTakePhoto && greenLightToTakePhoto) {
 
           // if green light for squirrel and confidence level is surpassed
           if (camera2Fragment != null) {
@@ -714,10 +735,7 @@ public abstract class CameraActivity extends AppCompatActivity
 
         } else if(result.getTitle().equals("Bird")
                 && (result.getConfidence() >= (float)(birdSeekBar/100))
-                && birdSwitchTakePhoto && generalSwitchTakePhoto && greenLightToTakePhoto) {
-
-          //show capture count to user
-          refreshCaptureCount();
+                && birdSwitchTakePhoto && greenLightToTakePhoto) {
 
           // if green light for squirrel and confidence level is surpassed
           if (camera2Fragment != null) {
