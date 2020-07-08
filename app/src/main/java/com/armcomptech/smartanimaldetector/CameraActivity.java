@@ -646,7 +646,7 @@ public abstract class CameraActivity extends AppCompatActivity
       mBtnCapture.setOnClickListener(e ->
       {
         //when button capture is clicked
-        logPictureTaken();
+        logManualPictureTaken();
         camera2Fragment.takePicture();
         refreshCaptureCount();
       });
@@ -657,7 +657,7 @@ public abstract class CameraActivity extends AppCompatActivity
       mBtnCapture.setOnClickListener(e ->
       {
         //when button capture is clicked
-        logPictureTaken();
+        logManualPictureTaken();
         ((LegacyCameraConnectionFragment) fragment).takePicture();
         refreshCaptureCount();
       });
@@ -666,11 +666,18 @@ public abstract class CameraActivity extends AppCompatActivity
     getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
   }
 
-  private void logPictureTaken() {
-    Bundle pictureTaken = new Bundle();
-    pictureTaken.putString(FirebaseAnalytics.Param.ITEM_ID, "takePic");
-    pictureTaken.putString(FirebaseAnalytics.Param.ITEM_NAME, "Picture Taken");
-    mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, pictureTaken);
+  private void logAutoPictureTaken() {
+    Bundle autoPictureTaken = new Bundle();
+    autoPictureTaken.putString(FirebaseAnalytics.Param.ITEM_ID, "AutoPicTaken");
+    autoPictureTaken.putString(FirebaseAnalytics.Param.ITEM_NAME, "Automatically Picture Taken");
+    mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, autoPictureTaken);
+  }
+
+  private void logManualPictureTaken() {
+    Bundle manualPictureTaken = new Bundle();
+    manualPictureTaken.putString(FirebaseAnalytics.Param.ITEM_ID, "ManualPicTaken");
+    manualPictureTaken.putString(FirebaseAnalytics.Param.ITEM_NAME, "Manually Picture Taken");
+    mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, manualPictureTaken);
   }
 
   protected void fillBytes(final Plane[] planes, final byte[][] yuvBytes) {
@@ -726,25 +733,22 @@ public abstract class CameraActivity extends AppCompatActivity
 
           // if green light for squirrel and confidence level is surpassed
           if (camera2Fragment != null) {
-            logPictureTaken();
             camera2Fragment.takePicture();
           } else {
-            logPictureTaken();
             ((LegacyCameraConnectionFragment) fragment).takePicture();
           }
-
+          logAutoPictureTaken();
         } else if(result.getTitle().equals("Bird")
                 && (result.getConfidence() >= (float)(birdSeekBar/100))
                 && birdSwitchTakePhoto && greenLightToTakePhoto) {
 
           // if green light for squirrel and confidence level is surpassed
           if (camera2Fragment != null) {
-            logPictureTaken();
             camera2Fragment.takePicture();
           } else {
-            logPictureTaken();
             ((LegacyCameraConnectionFragment) fragment).takePicture();
           }
+          logAutoPictureTaken();
         }
       }
     }
