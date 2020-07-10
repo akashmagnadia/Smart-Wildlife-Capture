@@ -99,6 +99,7 @@ public abstract class CameraActivity extends AppCompatActivity
 
   private static final String PERMISSION_CAMERA = Manifest.permission.CAMERA;
   private static final String WRITE_EXTERNAL_STORAGE = Manifest.permission.WRITE_EXTERNAL_STORAGE;
+  private static final String READ_EXTERNAL_STORAGE = Manifest.permission.READ_EXTERNAL_STORAGE;
   private static final int REQUEST_INVITE = 100;
   private static final String TAG = "CameraActivity";
   protected int previewWidth = 0;
@@ -548,7 +549,8 @@ public abstract class CameraActivity extends AppCompatActivity
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 
       return (checkSelfPermission(PERMISSION_CAMERA) == PackageManager.PERMISSION_GRANTED) &&
-              (checkSelfPermission(WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
+              (checkSelfPermission(WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) &&
+              (checkSelfPermission(READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
     } else {
       return true;
     }
@@ -570,7 +572,14 @@ public abstract class CameraActivity extends AppCompatActivity
                 Toast.LENGTH_LONG)
                 .show();
       }
-      requestPermissions(new String[] {PERMISSION_CAMERA, WRITE_EXTERNAL_STORAGE}, PERMISSIONS_REQUEST);
+      if (shouldShowRequestPermissionRationale(READ_EXTERNAL_STORAGE)) {
+        Toast.makeText(
+                CameraActivity.this,
+                "Storage permission required to save photos",
+                Toast.LENGTH_LONG)
+                .show();
+      }
+      requestPermissions(new String[] {PERMISSION_CAMERA, WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE}, PERMISSIONS_REQUEST);
     }
   }
 
@@ -878,7 +887,7 @@ public abstract class CameraActivity extends AppCompatActivity
         Bundle shareApp = new Bundle();
         shareApp.putString(FirebaseAnalytics.Param.ITEM_ID, "share");
         shareApp.putString(FirebaseAnalytics.Param.ITEM_NAME, "Share Application");
-        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, shareApp);
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SHARE, shareApp);
         break;
 
       default:

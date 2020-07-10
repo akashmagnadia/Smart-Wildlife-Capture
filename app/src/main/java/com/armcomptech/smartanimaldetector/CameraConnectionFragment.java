@@ -26,7 +26,6 @@ import android.app.Fragment;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.ImageFormat;
@@ -69,7 +68,6 @@ import androidx.core.app.ActivityCompat;
 
 import com.armcomptech.smartanimaldetector.customview.AutoFitTextureView;
 import com.armcomptech.smartanimaldetector.env.Logger;
-import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -87,8 +85,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
-
-import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 /**
  * Camera Connection Fragment that captures images from camera.
@@ -139,15 +135,6 @@ public class CameraConnectionFragment extends Fragment {
    */
   private static final int STATE_PICTURE_TAKEN = 4;
 
-  /**
-   * Max preview width that is guaranteed by Camera2 API
-   */
-  private static final int MAX_PREVIEW_WIDTH = 1920;
-
-  /**
-   * Max preview height that is guaranteed by Camera2 API
-   */
-  private static final int MAX_PREVIEW_HEIGHT = 1080;
   private static final String PERMISSION_CAMERA = Manifest.permission.CAMERA;
   private static final String WRITE_EXTERNAL_STORAGE = Manifest.permission.WRITE_EXTERNAL_STORAGE;
   private static final int PERMISSIONS_REQUEST = 1;
@@ -486,7 +473,7 @@ public class CameraConnectionFragment extends Fragment {
 
   @Override
   public void onViewCreated(final View view, final Bundle savedInstanceState) {
-    textureView = (AutoFitTextureView) view.findViewById(R.id.texture);
+    textureView = view.findViewById(R.id.texture);
   }
 
   @Override

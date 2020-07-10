@@ -10,20 +10,12 @@ android {
         applicationId "com.armcomptech.smartanimaldetector"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 9
-        versionName "9.0"
+        versionCode 12
+        versionName "12.0"
     }
     buildTypes {
         debug {
             manifestPlaceholders = [analytics_deactivated: "true"]
-            // Enables code shrinking, obfuscation, and optimization for only
-            // your project's release build type.
-            minifyEnabled true
-
-            // Enables resource shrinking, which is performed by the
-            // Android Gradle plugin.
-            shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         release {
             // Enables code shrinking, obfuscation, and optimization for only

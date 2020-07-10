@@ -38,7 +38,6 @@ import android.widget.Toast;
 import androidx.preference.PreferenceManager;
 
 import com.armcomptech.smartanimaldetector.customview.OverlayView;
-import com.armcomptech.smartanimaldetector.customview.OverlayView.DrawCallback;
 import com.armcomptech.smartanimaldetector.env.BorderedText;
 import com.armcomptech.smartanimaldetector.env.ImageUtils;
 import com.armcomptech.smartanimaldetector.env.Logger;
@@ -63,9 +62,6 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   private static final boolean TF_OD_API_IS_QUANTIZED = true;
   private static final String TF_OD_API_MODEL_FILE = "detect.tflite";
   private static final String TF_OD_API_LABELS_FILE = "file:///android_asset/labelmap.txt";
-  private static final DetectorMode MODE = DetectorMode.TF_OD_API;
-  // Minimum detection confidence to track a detection.
-  private static float MINIMUM_CONFIDENCE_TF_OD_API = 0.5f;
   private static final boolean MAINTAIN_ASPECT = false;
 
   private static final Size DESIRED_PREVIEW_SIZE = new Size(/*640*//*1920*/640, /*480*//*1080*/480);
@@ -139,7 +135,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     cropToFrameTransform = new Matrix();
     frameToCropTransform.invert(cropToFrameTransform);
 
-    trackingOverlay = (OverlayView) findViewById(R.id.tracking_overlay);
+    trackingOverlay = findViewById(R.id.tracking_overlay);
     trackingOverlay.addCallback(
             canvas -> {
               tracker.draw(canvas);
@@ -259,12 +255,6 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
       }
     }
     return DESIRED_PREVIEW_SIZE;
-  }
-
-  // Which detection model to use: by default uses Tensorflow Object Detection API frozen
-  // checkpoints.
-  private enum DetectorMode {
-    TF_OD_API
   }
 
   @Override
